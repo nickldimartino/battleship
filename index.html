@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <title>Document</title>
+    <script defer src="./js/main.js"></script>
+</head>
+<body>
+    <header>BATTLESHIP</header>
+    <h1>PLAYER'S TURN</h1>
+    <div id="alphabet-label"></div>
+    <div id="number-label"></div> 
+    <div id="player-boat-board">   
+        <div id="a1b"></div>
+        <!-- 1 to 10 -->
+        <div id="a10b"></div>
+        <!-- a to i -->
+        <div id="i1b"></div>
+        <div id="i10b"></div>
+    </div>
+    <div id="alphabet-label"></div> 
+    <div id="number-label"></div>
+    <div id="player-guess-board">  
+        <div id="a1g"></div>
+        <!-- 1 to 10 -->
+        <div id="a10g"></div>
+        <!-- a to i -->
+        <div id="i1g"></div>
+        <div id="i10g"></div>
+    </div>
+    <div id="boat-buttons">              <!-- hide when not using -->
+        <button id="place-aircraft-carrier"></button>
+        <button id="place-battleship"></button>
+        <button id="place-destroyer"></button>
+        <button id="place-submarine"></button>
+        <button id="place-patrol-boat"></button>
+        <button id="done"></button>
+    </div>
+    <div id="in-game-buttons">
+        <div id="new-game"></div>
+        <div id="take-shot"></div>
+    </div>
+    <div id="game-log"></div>
+    <div id="rules"></div>
+</body>
+</html>
