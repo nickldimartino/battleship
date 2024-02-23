@@ -1,0 +1,148 @@
+:root {
+    --page-background: radial-gradient(khaki, crimson);
+    --game-log: beige;
+    --take-guess-btn: red;
+    --water-image: url(/imgs/water.jpg);
+    --boat-btn: royalblue;
+    --borders: black;
+    --rules-background: white;
+    --grid-axis: white;
+    --lock-fleet-btn: blue;
+    --font-color: black;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background: var(--page-background);
+    font-family: "Anta", sans-serif;
+}
+
+#rules {
+    min-width: 300px;
+    max-width: 300px;
+    min-height: 160px;
+    max-height: 160px;
+    background-color: var(--rules-background);
+    border: 2px solid var(--borders);
+    position: absolute;
+    top: 0.2em;
+    right: 0.2em;
+    font-size: 11px;
+    padding: 2px;
+    color: var(--font-color);
+}
+
+header {
+    font-size: 7vmin;
+    color: black;
+    letter-spacing: 2vmin;
+    color: var(--font-color);
+}
+
+#game-log {
+    border: 2px solid var(--borders);
+    background-color: var(--game-log);
+    min-height: 50px;
+    min-width: 300px;
+    color: var(--font-color);
+}
+
+#take-guess-btn {
+    background-color: var(--take-guess-btn);
+    border: 1px solid var(--borders);
+    border-radius: 4px;
+    color: var(--font-color);
+}
+
+#take-guess-btn:hover {
+    transform: scale(1.3);
+    transition: transform 115ms case-in;
+}
+
+#board-labels {
+    display: flex;
+    flex-direction: row;
+}
+
+.board-label {
+    margin-left: 13vmin;
+    margin-right: 13vmin;
+    color: var(--font-color);
+}
+
+#boards {
+    display: flex;
+    gap: 1vmin;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 4.5vmin);
+    grid-template-rows: repeat(10, 4.5vmin);
+    background-image: var(--water-image);
+    border: 4px solid var(--borders);
+}
+
+.board > div {
+    border: 1px solid rgb(173, 216, 230);
+}
+
+.board > div:hover {
+    transform: scale(1.1);
+    transition: transform 105ms case-in;
+    background-color: rgb(173, 0, 0);
+    opacity: 0.60;
+}
+
+.grid-number, .grid-letter {
+    color: var(--grid-axis);
+    font-size: 10px;
+}
+
+#new-game-btn {
+    background-color: white;
+    border: 1px solid var(--borders);;
+    border-radius: 4px;
+}
+
+.boat-btn {
+    background-color: var(--boat-btn);
+    border: 1px solid var(--borders);
+    border-radius: 4px;
+    color: white;
+    font-size: 20px;
+    padding: 5px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.boat-btn:hover {
+    transform: scale(1.1);
+    transition: transform 105ms case-in;
+}
+
+#lock-fleet-btn {
+    background-color: var(--lock-fleet-btn);
+    border: 1px solid var(--borders);
+    border-radius: 4px;
+    color: white;
+    font-size: 13px;
+    padding: 5px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+#lock-fleet-btn:hover {
+    transform: scale(1.1);
+    transition: transform 105ms case-in;
+}
+
