@@ -49,10 +49,15 @@ header {
 }
 
 #game-log {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     border: 2px solid var(--borders);
     background-color: var(--game-log);
     min-height: 50px;
     min-width: 300px;
+    max-width: 300px;
     color: var(--font-color);
 }
 
@@ -112,6 +117,11 @@ header {
     background-color: white;
     border: 1px solid var(--borders);;
     border-radius: 4px;
+}
+
+#new-game-btn:hover {
+    transform: scale(1.1);
+    transition: transform 105ms case-in;
 }
 
 .boat-btn {
