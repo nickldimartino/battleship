@@ -1,13 +1,13 @@
 /*----- constants -----*/
 // audio for boat taking a shot (BONUS)
 // audio for computer hitting a boat (BONUS)
-// const BOAT_SIZES = {
-//     "Aircraft Carrier": 5,
-//     "Battleship": 4,
-//     "Destroyer": 3,
-//     "Submarine": 3,
-//     "Patrol Bost": 2
-// }
+const BOAT_SIZES = {
+    5: "Aircraft Carrier",
+    4: "Battleship",
+    3: "Destroyer",
+    3: "Submarine",
+    2: "Patrol Boat"
+}
 
 // Coordinates for the game board grids
 const COORDINATE_LOOKUP = {
@@ -18,7 +18,7 @@ const COORDINATE_LOOKUP = {
     9: 'i', 10: 'j'
 }
 
-// Values for the game board grid squares
+// Values for the game board grid squares  ---- TODO MAKE ANOTHER TO FIX TWO BOATS NEXT TO EACH OTHER ----
 const SQUARE_VALUE = {
     EMPTY: 0,
     MISS: 1,
@@ -32,7 +32,7 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
-const TOTAL_HITS_TO_WIN = 2;  // sum of the amount of hits for all boats
+const TOTAL_HITS_TO_WIN = 17;  // sum of the amount of hits for all boats
 
 
 /*----- app's state (variables) -----*/
@@ -47,6 +47,20 @@ let player1NumBoats;                    // number of boats player1 has on the bo
 let player2NumBoats;                    // number of boats player2 has on the board
 let moreLogInfo;                        // more info to append to the game log if needed
 let directHits = { "1": 0, "-1": 0 };   // number of hits each player has taken
+let p1BoatsPlaced = {                   // player 1's placed boats
+    "Aircraft Carrier": false,
+    "Battleship": false,
+    "Destroyer": false,
+    "Submarine": false,
+    "Patrol Boat": false,
+}
+let p2BoatsPlaced = {                   // player 2's placed boats
+    "Aircraft Carrier": false,
+    "Battleship": false,
+    "Destroyer": false,
+    "Submarine": false,
+    "Patrol Boat": false,
+}
 
 
 /*----- cached element references -----*/
@@ -67,7 +81,6 @@ const p2bSquareEls = [...document.querySelectorAll("#player2-boat-board > div")]
 
 
 /*----- event listeners -----*/
-//takeGuessBtn.addEventListener("click", handleGuess);                                         // listens for click on take guess button
 placeAircraftCarrierBtn.addEventListener("click", handleBoatSave);                           // listens for click on aircraft carrier button
 placeBattleshipBtn.addEventListener("click", handleBoatSave);                                // listens for click on battle button
 placeDestroyerBtn.addEventListener("click", handleBoatSave);                                 // listens for click on destoryer button
@@ -90,13 +103,13 @@ function init() {
     // The game boards here are the same orientation as on screen
     player1BoatBoard = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 3, 3, 3, 3, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 3, 3, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 3, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 3, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 3, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 3, 3, 3, 3, 3],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
@@ -114,15 +127,15 @@ function init() {
     ];
     player2BoatBoard = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 3, 3, 3, 3, 3, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
-        [3, 3, 3, 3, 0, 0, 3, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 3, 3, 3, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
     player2GuessBoard = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -137,11 +150,26 @@ function init() {
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
     
-    // clear all hits, misses, and boats   ---------TODO: SLIGHT BOARD CHANGE -----------
+    //clear all hits, misses, and boats   ---------TODO: SLIGHT BOARD CHANGE -----------
     [...document.querySelectorAll(".board > div")].forEach(sq => {
-        sq.style.background = "none"
-        sq.style.border = "1px solid rgb(173, 216, 230)";
+        sq.style.backgroundColor = "transparent";
+        // maybe add a pseudo-class?
     });
+
+    p1BoatsPlaced = {
+        "Aircraft Carrier": false,
+        "Battleship": false,
+        "Destroyer": false,
+        "Submarine": false,
+        "Patrol Boat": false,
+    }
+    p2BoatsPlaced = {
+        "Aircraft Carrier": false,
+        "Battleship": false,
+        "Destroyer": false,
+        "Submarine": false,
+        "Patrol Boat": false,
+    }
 
     turn = 1;                           // play starts with player1
     winner = null;                      // there is no winner on initialization
@@ -151,6 +179,8 @@ function init() {
     moreLogInfo = "";                   // there isn't any more info the tell the player
     directHits = { "1": 0, "-1": 0 };   // no hits have been made
     render();                           // render the initiated game
+    submarineChosen = false;            // submarine boat hasn't been chosen
+    destoyerChosen= false;             // destroyer boat hasn't been chosen
     return;
 }
 
@@ -162,7 +192,108 @@ function getWinner(turn) {
     return;
 }
 
-function handleBoatSave() {}
+
+// ------------------------------------------------------------------------------------------------------------
+function handleBoatSave(boardId, board, col, row) {
+    let square = board[col][row];
+    if (square !== SQUARE_VALUE.BOAT) {
+        board[col][row] = 3;
+        return;
+    }
+    let startCnt = square === SQUARE_VALUE.BOAT ? 1 : 0;
+    let upCnt = checkUpSquare(board, col, row);
+    let downCnt = checkDownSquare(board, col, row);
+    let rightCnt = checkRightSquare(board, col, row);
+    let leftCnt = checkLeftSquare(board, col, row);
+
+    let upDownCnt = upCnt + downCnt + startCnt;
+    let leftRightCnt = rightCnt + leftCnt + startCnt;
+    
+    if (boardId == "player1-boat-board" && player1NumBoats !== 5) {
+        if (upDownCnt === 5 || leftRightCnt == 5 && !p1BoatsPlaced["Aircraft Carrier"]) {
+            p1BoatsPlaced["Aircraft Carrier"] = true;
+            player1NumBoats++;
+        } else if (upDownCnt === 4 || leftRightCnt == 4 && !p1BoatsPlaced["Battleship"]) {
+            p1BoatsPlaced["Battleship"] = true;
+            player1NumBoats++;
+        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p1BoatsPlaced["Destroyer"]) {
+            p1BoatsPlaced["Destroyer"] = true;
+            player1NumBoats++;
+        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p1BoatsPlaced["Submarine"]) {
+            p1BoatsPlaced["Submarine"] = true;
+            player1NumBoats++;
+        } else if (upDownCnt === 2 || leftRightCnt == 2 && !p1BoatsPlaced["Patrol Boat"]) {
+            p1BoatsPlaced["Patrol Boat"] = true;
+            player1NumBoats++;
+        }
+    } else if (boardId == "player2-boat-board" && player2NumBoats !== 5) {
+        if (upDownCnt === 5 || leftRightCnt == 5 && !p2BoatsPlaced["Aircraft Carrier"]) {
+            p2BoatsPlaced["Aircraft Carrier"] = true;
+            player2NumBoats++;
+        } else if (upDownCnt === 4 || leftRightCnt == 4 && !p2BoatsPlaced["Battleship"]) {
+            p2BoatsPlaced["Battleship"] = true;
+            player2NumBoats++;
+        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p2BoatsPlaced["Destroyer"]) {
+            p2BoatsPlaced["Destroyer"] = true;
+            player2NumBoats++;
+        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p2BoatsPlaced["Submarine"]) {
+            p2BoatsPlaced["Submarine"] = true;
+            player2NumBoats++;
+        } else if (upDownCnt === 2 || leftRightCnt == 2 && !p2BoatsPlaced["Patrol Boat"]) {
+            p2BoatsPlaced["Patrol Boat"] = true;
+            player2NumBoats++;
+        }
+    }
+    if (player1NumBoats === 5 && player2NumBoats === 5) {
+        moreLogInfo = "Commence bombardment!";
+        gameStart = true;
+    }
+}
+
+// Checks the squares to the below of the current square
+function checkUpSquare(board, col, row) {
+    return countAdjacent(board, col, row, -1, 0);
+}
+
+// Checks the squares to the below of the current square
+function checkDownSquare(board, col, row) {
+    return countAdjacent(board, col, row, +1, 0);
+}
+
+// Checks the squares to the right of the current square
+function checkRightSquare(board, col, row) {
+    return countAdjacent(board, col, row, 0, +1);
+}
+
+// Checks the squares to the left of the current square
+function checkLeftSquare(board, col, row) {
+    return countAdjacent(board, col, row, 0, -1);
+}
+
+// Counts the adjacent squares to to determine the length of the boat squares next to current square
+function countAdjacent(board, col, row, colOffset, rowOffset) {
+    const val = board[col][row];   // value in the current square
+    let count = 0;                 // initiate a count
+    col += colOffset;              // set the current square column position to the offset
+    row += rowOffset;              // set the current square row position to the offset
+
+    // while the current square position is on the board, equal to the same value, and a boat square
+    // increase the count, column position, and row position to continue moving in the required direction
+    while (
+        board[col] !== undefined &&
+        board[col][row] !== undefined &&
+        board[col][row] === val &&
+        board[col][row] === SQUARE_VALUE.BOAT
+        ) {
+            count++;
+            col += colOffset;
+            row += rowOffset;
+    }
+    return count;
+}
+// ------------------------------------------------------------------------------------------------------------
+
+
 function handleLockFleet() {}
 
 //  Click event handlers for the squares on each board
@@ -245,6 +376,12 @@ function checkSquare(boardId, board, col, row) {
         oppBoard = player2BoatBoard;
     } else if (boardId === "player2-guess-board") {
         oppBoard = player1BoatBoard;
+    } else if (boardId === "player1-boat-board") {
+        handleBoatSave(boardId, board, col, row);
+        return;
+    } else if (boardId === "player2-boat-board") {
+        handleBoatSave(boardId, board, col, row);
+        return;
     }
 
     const square = board[col][row];         // save the square clicked
@@ -255,13 +392,11 @@ function checkSquare(boardId, board, col, row) {
     // else if the square is a boat, notify the player of a boat hit and switch turns
     if (oppSquare === SQUARE_VALUE.EMPTY) {
         board[col][row] = 1;
-        square == SQUARE_VALUE.MISS;
         moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed!`;
         turn *= -1;
     } else if (oppSquare === SQUARE_VALUE.MISS || square === SQUARE_VALUE.HIT) {
         moreLogInfo = "You've already guess here. Take a different shot.";
     } else if (oppSquare === SQUARE_VALUE.BOAT) {
-        square == SQUARE_VALUE.HIT;
         board[col][row] = 2;
         moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit!`;
         directHits[turn]++;
@@ -276,13 +411,13 @@ function checkSquare(boardId, board, col, row) {
 
 // Updates the UI with changes throughout gameplay
 function render() {
-    renderPlayer1BoatBoard();      // updates player1's guess board
-    renderPlayer1GuessBoard();     // updates player1's guess board
-    renderPlayer2BoatBoard();      // updates player2's boat board
-    renderPlayer2GuessBoard();     // updates player2's boat board
-    renderGameLog();               // updates the game log to display gameplay moments
-    renderControls();              // hides the boat placement buttons
-    //renderBoardVisibility();       // switches between the players' board's visibility
+    renderPlayer1BoatBoard();                     // updates player1's guess board
+    renderPlayer1GuessBoard();                    // updates player1's guess board
+    renderPlayer2BoatBoard();                     // updates player2's boat board
+    renderPlayer2GuessBoard();                    // updates player2's boat board
+    renderGameLog();                              // updates the game log to display gameplay moments
+    renderControls();                             // hides the boat placement buttons
+    if (gameStart) renderBoardVisibility();       // switches between the players' board's visibility
     return;
 }
 
@@ -296,21 +431,7 @@ function renderPlayer1BoatBoard() {
             const coordsEl = document.querySelector(`#player1-boat-board > #${coords}`);
             
             // using each cell value, color the square based on if it's a hit, miss, or boat
-            switch(cellVal) {
-                case SQUARE_VALUE.EMPTY:
-                    break;
-                case SQUARE_VALUE.MISS:
-                    coordsEl.style.backgroundColor = "white";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.HIT:
-                    coordsEl.style.backgroundColor = "red";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.BOAT:
-                    coordsEl.style.backgroundColor = "dimgrey";
-                    break;
-            }
+            renderSquareColor(cellVal, coordsEl);
         });
     });
     return;
@@ -325,21 +446,7 @@ function renderPlayer1GuessBoard() {
             const coordsEl = document.querySelector(`#player1-guess-board > #${coords}`);
 
             // using each cell value, color the square based on if it's a hit, miss, or boat
-            switch(cellVal) {
-                case SQUARE_VALUE.EMPTY:
-                    break;
-                case SQUARE_VALUE.MISS:
-                    coordsEl.style.backgroundColor = "white";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.HIT:
-                    coordsEl.style.backgroundColor = "red";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.BOAT:
-                    coordsEl.style.backgroundColor = "dimgrey";
-                    break;
-            }
+            renderSquareColor(cellVal, coordsEl);
         });
     });
     return;
@@ -354,21 +461,7 @@ function renderPlayer2GuessBoard() {
             const coordsEl = document.querySelector(`#player2-guess-board > #${coords}`);
 
             // using each cell value, color the square based on if it's a hit, miss, or boat
-            switch(cellVal) {
-                case SQUARE_VALUE.EMPTY:
-                    break;
-                case SQUARE_VALUE.MISS:
-                    coordsEl.style.backgroundColor = "white";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.HIT:
-                    coordsEl.style.backgroundColor = "red";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.BOAT:
-                    coordsEl.style.backgroundColor = "dimgrey";
-                    break;
-            }
+            renderSquareColor(cellVal, coordsEl);
         });
     });
     return;
@@ -383,35 +476,46 @@ function renderPlayer2BoatBoard() {
             const coordsEl = document.querySelector(`#player2-boat-board > #${coords}`);
 
             // using each cell value, color the square based on if it's a hit, miss, or boat
-            switch(cellVal) {
-                case SQUARE_VALUE.EMPTY:
-                    break;
-                case SQUARE_VALUE.MISS:
-                    coordsEl.style.backgroundColor = "white";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.HIT:
-                    coordsEl.style.backgroundColor = "red";
-                    coordsEl.style.opacity = 0.4;
-                    break;
-                case SQUARE_VALUE.BOAT:
-                    coordsEl.style.backgroundColor = "dimgrey";
-                    break;
-            }
+            renderSquareColor(cellVal, coordsEl);
         });
     });
     return;
 }
 // ------------------------------------------------------------------------------------------------------------
 
+// Change the color of the square based on the value of the square
+function renderSquareColor(cellVal, coordsEl) {
+    switch(cellVal) {
+        case SQUARE_VALUE.EMPTY:
+            break;
+        case SQUARE_VALUE.MISS:
+            coordsEl.style.backgroundColor = "white";
+            coordsEl.style.opacity = 0.4;
+            break;
+        case SQUARE_VALUE.HIT:
+            coordsEl.style.backgroundColor = "red";
+            coordsEl.style.opacity = 0.4;
+            break;
+        case SQUARE_VALUE.BOAT:
+            coordsEl.style.backgroundColor = "dimgrey";
+            break;
+    }
+    return;
+}
+
 // Updates the game log to display winner and more game info
 function renderGameLog() {
-    // if there's a winner, then display it, else display the current turn and other info
+    // if there's a winner, then display it, set the game to end, and show all boards
+    // else display the current turn and other info
     if (winner !== null) {
-        console.log("gamelog " + winner)
         messageEl.innerText = `${PLAYER_VALUE[winner]} wins!`;
+        gameStart = false;
+        document.getElementsByClassName("p2boards")[0].style.visibility = "visible";
+        document.getElementsByClassName("p2boards")[1].style.visibility = "visible";
+        document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
+        document.getElementsByClassName("p1boards")[1].style.visibility = "visible";
     } else {
-        messageEl.innerText = `${PLAYER_VALUE[turn]}'s turn. ${moreLogInfo}`;
+        messageEl.innerHTML = `${PLAYER_VALUE[turn]}'s turn.<br>${moreLogInfo}`;
     }
     return;
 }
