@@ -194,21 +194,28 @@ function getWinner(turn) {
 
 
 // ------------------------------------------------------------------------------------------------------------
+// Saves the boats the player enters onto their fleet board and determines if the players have enough boats
 function handleBoatSave(boardId, board, col, row) {
-    let square = board[col][row];
+    let square = board[col][row];  // value of the square
+    
+    // if the square isn't a boat, make it a boat and return
     if (square !== SQUARE_VALUE.BOAT) {
         board[col][row] = 3;
         return;
     }
-    let startCnt = square === SQUARE_VALUE.BOAT ? 1 : 0;
-    let upCnt = checkUpSquare(board, col, row);
+    // count the number of adjacent boat squares in each direction
+    let startCnt = square === SQUARE_VALUE.BOAT ? 1 : 0;    // the starting square should be added if it's a boat
+    let upCnt = checkUpSquare(board, col, row);             // count in the up direction 
     let downCnt = checkDownSquare(board, col, row);
     let rightCnt = checkRightSquare(board, col, row);
     let leftCnt = checkLeftSquare(board, col, row);
 
+    // sum the vertical and horizontal counts
     let upDownCnt = upCnt + downCnt + startCnt;
     let leftRightCnt = rightCnt + leftCnt + startCnt;
     
+    // for each player board and that player has less than 5 boats determine if that player has placed that length boat yet
+    // if not, add the boat and increase the number of boats for that player
     if (boardId == "player1-boat-board" && player1NumBoats !== 5) {
         if (upDownCnt === 5 || leftRightCnt == 5 && !p1BoatsPlaced["Aircraft Carrier"]) {
             p1BoatsPlaced["Aircraft Carrier"] = true;
@@ -244,6 +251,8 @@ function handleBoatSave(boardId, board, col, row) {
             player2NumBoats++;
         }
     }
+
+    // if both players have 5 boats, the game can begin
     if (player1NumBoats === 5 && player2NumBoats === 5) {
         moreLogInfo = "Commence bombardment!";
         gameStart = true;
