@@ -13,9 +13,4 @@ Friday, February 23rd: First draft of HTML and CSS completed - 6 hours <br />
 Sunday, February 25th: Turns based-system of game completed - 7 hours <br /> 
 Monday, February 26nd: Quality of life features for turn-based system and code refactoring and <br /> 
 comments completed - 9 hours <br /> 
-Tuesday, February 22nd: Updated the UI to be more user friendly, smoothed out turn-based system, and <br />  
-bug fixes* - 7 hours <br /> 
-
-Bug Fixes: <br /> 
-*Game boards now allow player to have separate boats in adjacent squares <br /> 
-*Game boards show to both players when selecting fleet <br /> 
+Tuesday, February 22nd: Updated the UI to be more user friendly, smoothed out turn-based system, and <br /> fixed bugs.  Game is operational and ready for presentation - 7 hours 

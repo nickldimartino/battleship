@@ -62,8 +62,8 @@ header {
 }
 
 .board-label {
-    margin-left: 13vmin;
-    margin-right: 13vmin;
+    margin-left: 64px;
+    margin-right: 64px;
     color: black;
 }
 
@@ -88,8 +88,14 @@ header {
 .board > div:hover {
     transform: scale(1.1);
     transition: transform 105ms case-in;
-    background-color: rgb(173, 0, 0);
     opacity: 0.60;
+    cursor: pointer;
+}
+
+.SquareHoverClass:hover {
+    background-color: green !important; 
+    transform: scale(1.1);
+    transition: transform 105ms case-in;
     cursor: pointer;
 }
 
@@ -98,8 +104,7 @@ header {
     font-size: 10px;
 }
 
-#show-hide-rules-btn, #undo-btn, #new-game-btn {
-    background-color: white;
+#show-hide-rules-btn, #undo-btn, #new-game-btn, #set-time {
     border: 1px solid white;
     border-radius: 4px;
     margin-left: 5px;
@@ -113,4 +118,14 @@ header {
     transform: scale(1.1);
     transition: transform 105ms case-in;
     cursor: pointer;
+}
+
+#time-input {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+
+#time-input::placeholder {
+    color: darkgrey;
 }

@@ -1,15 +1,14 @@
 /*----- constants -----*/
-// audio for boat taking a shot (BONUS)
-// audio for computer hitting a boat (BONUS)
+// Size of each boat
 const BOAT_SIZES = {
-    5: "Aircraft Carrier",
-    4: "Battleship",
-    3: "Destroyer",
-    3: "Submarine",
-    2: "Patrol Boat"
+    "Aircraft Carrier": 5,
+    "Battleship": 4,
+    "Destroyer": 3,
+    "Submarine": 3,
+    "Patrol Boat": 2
 }
 
-// Coordinates for the game board grids
+// Coordinates for the game board grid squares
 const COORDINATE_LOOKUP = {
     1: 'a', 2: 'b', 
     3: 'c', 4: 'd', 
@@ -18,7 +17,7 @@ const COORDINATE_LOOKUP = {
     9: 'i', 10: 'j'
 }
 
-// Values for the game board grid squares  ---- TODO MAKE ANOTHER TO FIX TWO BOATS NEXT TO EACH OTHER ----
+// Values for the game board grid squares
 const SQUARE_VALUE = {
     EMPTY: 0,
     MISS: 1,
@@ -33,8 +32,8 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
-const TOTAL_HITS_TO_WIN = 17;  // sum of the amount of hits for all boats
-const TOTAL_NUM_BOATS = 5;     // total number of boats a player needs  
+const TOTAL_HITS_TO_WIN = 2;  // sum of the amount of hits for all boats
+const TOTAL_NUM_BOATS = 2;     // total number of boats a player needs  
 
 
 /*----- app's state (variables) -----*/
@@ -48,7 +47,15 @@ let player2GuessBoard;                  // player2 board with guesses
 let player1NumBoats;                    // number of boats player1 has on the board
 let player2NumBoats;                    // number of boats player2 has on the board
 let moreLogInfo;                        // more info to append to the game log if needed
-let directHits = { "1": 0, "-1": 0 };   // number of hits each player has taken
+let lastPlacedBoard;                    // holds the last clicked board
+let lastPlacedBoatSquareCol;            // holds the last clicked board column
+let lastPlacedBoatSquareRow;            // holds the last clicked board row
+let lastPlacedBoardId;                  // holds the last clicked board id
+let timeIntervalBoardSwitch             // holds the time interval for the boards when alternating turns
+let directHits = {                      // number of hits each player has taken
+    "1": 0, 
+    "-1": 0 
+}; 
 let p1BoatsPlaced = {                   // player 1's placed boats
     "Aircraft Carrier": false,
     "Battleship": false,
@@ -63,10 +70,6 @@ let p2BoatsPlaced = {                   // player 2's placed boats
     "Submarine": false,
     "Patrol Boat": false,
 }
-let lastPlacedBoard;
-let lastPlacedBoatSquareCol;
-let lastPlacedBoatSquareRow;
-let lastPlacedBoardId;
 
 
 /*----- cached element references -----*/
@@ -77,6 +80,8 @@ const newGameBtn = document.getElementById("new-game-btn");                     
 const gameRules = document.getElementById("rules");                                          // game rules
 const boatPlacementInstructions = document.getElementById("boat-placement-instructions");    // boat placement instructions button
 const undoBtn = document.getElementById("undo-btn");                                         // undo button
+const setTimeBtn = document.getElementById("set-time");                                      // set time interval of the boards switching
+const timeInputField = document.getElementById("time-input");
 const p1bSquareEls = [...document.querySelectorAll("#player1-boat-board > div")];            // squares in the P1 Boat Board
 const p1gSquareEls = [...document.querySelectorAll("#player1-guess-board > div")];           // squares in the P1 GUess Board
 const p2gSquareEls = [...document.querySelectorAll("#player2-guess-board > div")];           // squares in the P2 Guess Board
@@ -86,6 +91,7 @@ const p2bSquareEls = [...document.querySelectorAll("#player2-boat-board > div")]
 /*----- event listeners -----*/
 newGameBtn.addEventListener("click", init);                                                            // listens for click on new game button
 undoBtn.addEventListener("click", handleUndo);                                                         // listens for click on undo button
+setTimeBtn.addEventListener("click", handleSetTime);                                                   // listens for click on set time button
 document.getElementById("show-hide-rules-btn").addEventListener("click", handleShowHideGameRules);     // listens for click on show/hide rules button
 document.getElementById("player1-boat-board").addEventListener("click", handleSquare);                 // listens for click on P1 Boat Board button
 document.getElementById("player1-guess-board").addEventListener("click", handleSquare);                // listens for click on P1 Guess Board button
@@ -94,12 +100,12 @@ document.getElementById("player2-boat-board").addEventListener("click", handleSq
 
 
 /*----- functions -----*/
-init();  // start the game 
+// Start the game 
+init();
 
 // Starts the game by initializing the state variables
 function init() {
-    // Game boards for both players set to empty
-    // The game boards here are the same orientation as on screen
+    // Game boards for both players set to empty. They are same orientation as seen on screen
     player1BoatBoard = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -149,20 +155,21 @@ function init() {
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
     
-    //clear all hits, misses, and boats   ---------TODO: SLIGHT BOARD CHANGE -----------
+    // clear all hits, misses, and boats and re-adds original hover properties of each grid square
     [...document.querySelectorAll(".board > div")].forEach(sq => {
         sq.style.backgroundColor = "transparent";
-        // maybe add a pseudo-class?
+        sq.style.opacity = 1;
+        sq.classList.add("SquareHoverClass");
     });
 
-    p1BoatsPlaced = {
+    p1BoatsPlaced = {                   // keeps track of the boats player 1 has placed
         "Aircraft Carrier": false,
         "Battleship": false,
         "Destroyer": false,
         "Submarine": false,
         "Patrol Boat": false,
     }
-    p2BoatsPlaced = {
+    p2BoatsPlaced = {                   // keeps track of the boats player 1 has placed
         "Aircraft Carrier": false,
         "Battleship": false,
         "Destroyer": false,
@@ -170,171 +177,52 @@ function init() {
         "Patrol Boat": false,
     }
 
-    turn = 1;                           // play starts with player1
-    winner = null;                      // there is no winner on initialization
-    player1NumBoats = 0;                // player1 starts with 0 boats
-    player2NumBoats = 0;                // player2 starts with 0 boats
-    gameStart = false;                  // game has not started
-    moreLogInfo = "";                   // there isn't any more info the tell the player
-    directHits = { "1": 0, "-1": 0 };   // no hits have been made
-    gameRulesShowing = true;            // game rules should be visible on game start
-    lastPlacedBoard = null;
-    lastPlacedBoatSquareCol = null;
-    lastPlacedBoatSquareRow = null;
-    lastPlacedBoardId = null;
-    render();                           // render the initiated game
-    return;
-}
+    turn = 1;                               // play starts with player1
+    winner = null;                          // there is no winner on initialization
+    player1NumBoats = 0;                    // player1 starts with 0 boats
+    player2NumBoats = 0;                    // player2 starts with 0 boats
+    gameStart = false;                      // game has not started
+    moreLogInfo = "";                       // there isn't any more info the tell the player
+    directHits = { "1": 0, "-1": 0 };       // no hits have been made
+    gameRulesShowing = true;                // game rules should be visible on game start
+    lastPlacedBoard = null;                 // the board has not been clicked yet
+    lastPlacedBoatSquareCol = null;         // the board has not been clicked yet
+    lastPlacedBoatSquareRow = null;         // the board has not been clicked yet
+    lastPlacedBoardId = null;               // the board has not been clicked yet
+    undoBtn.style.visibility = "visibile";  // should be visible on new game
+    timeIntervalBoardSwitch = 1;            // time for boards to switch is 1 second;
 
-// Checks if the number of boats left for a player is 0 and returns the opponent if true or nothing if there is no winner
-function getWinner(turn) {
-    if (directHits[turn] === TOTAL_HITS_TO_WIN) {
-        winner = turn;
-    }
-    return;
-}
-
-// Saves the boats the player enters onto their fleet board and determines if the players have enough boats
-function handleBoatSave(boardId, board, col, row) {
-    let square = board[col][row];  // value of the square
+    // start the game with on Player 1's Boat Board showing so they can pick their fleet
+    document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
+    document.getElementsByClassName("p1boards")[1].style.visibility = "hidden";
+    document.getElementsByClassName("p2boards")[0].style.visibility = "hidden";
+    document.getElementsByClassName("p2boards")[1].style.visibility = "hidden";
     
-    // if the square isn't a boat, make it a boat and return
-    if (square !== SQUARE_VALUE.UNSAVED_BOAT) {
-        board[col][row] = 4;
-        return;
-    }
-
-    // count the number of adjacent boat squares in each direction
-    let startCnt = square === SQUARE_VALUE.UNSAVED_BOAT ? 1 : 0;    // the starting square should be added if it's a boat
-    let upCnt = checkUpSquare(board, col, row);             // count in the up direction 
-    let downCnt = checkDownSquare(board, col, row);         // count in the down direction
-    let rightCnt = checkRightSquare(board, col, row);       // count in the right direction
-    let leftCnt = checkLeftSquare(board, col, row);         // count in the left direction
-
-    // sum the vertical and horizontal counts
-    let upDownCnt = upCnt + downCnt + startCnt;
-    let leftRightCnt = rightCnt + leftCnt + startCnt;
-
-    // for each player board and that player has less than 5 boats determine if that player has placed that length boat yet
-    // if so, add the boat, increase the number of boats for that player, and save the selected boat
-    if (boardId == "player1-boat-board" && player1NumBoats !== 5) {
-        if (upDownCnt === 5 || leftRightCnt == 5 && !p1BoatsPlaced["Aircraft Carrier"]) {
-            p1BoatsPlaced["Aircraft Carrier"] = true;
-            player1NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 4 || leftRightCnt == 4 && !p1BoatsPlaced["Battleship"]) {
-            p1BoatsPlaced["Battleship"] = true;
-            player1NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p1BoatsPlaced["Destroyer"]) {
-            p1BoatsPlaced["Destroyer"] = true;
-            player1NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p1BoatsPlaced["Submarine"]) {
-            p1BoatsPlaced["Submarine"] = true;
-            player1NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 2 || leftRightCnt == 2 && !p1BoatsPlaced["Patrol Boat"]) {
-            p1BoatsPlaced["Patrol Boat"] = true;
-            player1NumBoats++;
-            saveSelectedBoat(board);
-        }
-    } else if (boardId == "player2-boat-board" && player2NumBoats !== 5) {
-        if (upDownCnt === 5 || leftRightCnt == 5 && !p2BoatsPlaced["Aircraft Carrier"]) {
-            p2BoatsPlaced["Aircraft Carrier"] = true;
-            player2NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 4 || leftRightCnt == 4 && !p2BoatsPlaced["Battleship"]) {
-            p2BoatsPlaced["Battleship"] = true;
-            player2NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p2BoatsPlaced["Destroyer"]) {
-            p2BoatsPlaced["Destroyer"] = true;
-            player2NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 3 || leftRightCnt == 3 && !p2BoatsPlaced["Submarine"]) {
-            p2BoatsPlaced["Submarine"] = true;
-            player2NumBoats++;
-            saveSelectedBoat(board);
-        } else if (upDownCnt === 2 || leftRightCnt == 2 && !p2BoatsPlaced["Patrol Boat"]) {
-            p2BoatsPlaced["Patrol Boat"] = true;
-            player2NumBoats++;
-            saveSelectedBoat(board);
-        }
-    }
-    
-    // if both players have 5 boats, the game can begin
-    if (player1NumBoats === 5 && player2NumBoats === 5) {
-        moreLogInfo = "Commence bombardment!";
-        gameStart = true;
-        undoBtn.style.visiblity =  "hidden";
-    }
-}
-
-// Save the selected boat into the player's fleet
-function saveSelectedBoat(board) {
-    // iterate through the board to look for any UNSAVED_BOAT values (4), if found, replace with a BOAT value (3)
-    board.forEach((colArr, colIdx) => {
-        colArr.forEach((cellVal, rowIdx) => {
-            if (cellVal === 4) {
-                board[colIdx][rowIdx] = 3;
-            }
-        });
-    });
+    render();                               // render the initiated game
     return;
-}
-
-// Checks the squares to the below of the current square
-function checkUpSquare(board, col, row) {
-    return countAdjacent(board, col, row, -1, 0);
-}
-
-// Checks the squares to the below of the current square
-function checkDownSquare(board, col, row) {
-    return countAdjacent(board, col, row, +1, 0);
-}
-
-// Checks the squares to the right of the current square
-function checkRightSquare(board, col, row) {
-    return countAdjacent(board, col, row, 0, +1);
-}
-
-// Checks the squares to the left of the current square
-function checkLeftSquare(board, col, row) {
-    return countAdjacent(board, col, row, 0, -1);
-}
-
-// Counts the adjacent squares to to determine the length of the boat squares next to current square
-function countAdjacent(board, col, row, colOffset, rowOffset) {
-    const val = board[col][row];   // value in the current square
-    let count = 0;                 // initiate a count
-    col += colOffset;              // set the current square column position to the offset
-    row += rowOffset;              // set the current square row position to the offset
-
-    // while the current square position is on the board, equal to the same value, and a boat square
-    // increase the count, column position, and row position to continue moving in the required direction
-    while (
-        board[col] !== undefined &&
-        board[col][row] !== undefined &&
-        board[col][row] === val &&
-        board[col][row] === SQUARE_VALUE.UNSAVED_BOAT
-        ) {
-            count++;
-            col += colOffset;
-            row += rowOffset;
-    }
-    return count;
 }
 
 // Removes the last placed boat square
 function handleUndo() {
-    lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] = 0;
+    // if the last square clicked was already locked into a boat, then notify the player it can't be undone
+    if (lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] !== SQUARE_VALUE.UNSAVED_SHIP) {
+        messageEl.innerText = "You can't undo a ship once it's been locked in place";
+        return;
+    }
+    // sets the plast placed boat square value to 0 to mark as "empty"
+    lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] = SQUARE_VALUE.EMPTY;
+    
+    // gets the element that was last clicked
     const coords = `${COORDINATE_LOOKUP[lastPlacedBoatSquareCol+1]}${lastPlacedBoatSquareRow+1}`;
     const coordsEl = document.querySelector(`#${lastPlacedBoardId} > #${coords}`);
+
+    // remove the grey color that designates a placed boat square
     coordsEl.style.backgroundColor = 'transparent';
+
+    return;
 }
 
-// Toggle the view of the Game Rules box
+// Toggle the view of the Game Rules and Instructions boxes
 function handleShowHideGameRules() {
     if (gameRulesShowing) {
         gameRules.style.visibility = "hidden";
@@ -345,6 +233,13 @@ function handleShowHideGameRules() {
         boatPlacementInstructions.style.visibility = "visible";
         gameRulesShowing = true;
     } 
+    return;
+}
+
+function handleSetTime() {
+    let inputTime = timeInputField.value;
+    timeIntervalBoardSwitch = inputTime * 1000;
+    return;
 }
 
 // Click event handlers for the squares on each board
@@ -420,9 +315,10 @@ function handleSquare(evt) {
 
 // Check the squares clicked by the player
 function checkSquare(boardId, board, col, row) {
-    let oppBoard;
+    let oppBoard;    // opponent's board
     
     // determine the opponent's board from the player guessing to link them
+    // if it's the fleet boards, save off the last clicked square and try to place the boat square
     if (boardId === "player1-guess-board") {
         oppBoard = player2BoatBoard;
     } else if (boardId === "player2-guess-board") {
@@ -432,14 +328,14 @@ function checkSquare(boardId, board, col, row) {
         lastPlacedBoatSquareRow = row;
         lastPlacedBoard = player1BoatBoard;
         lastPlacedBoardId = boardId;
-        handleBoatSave(boardId, board, col, row);
+        placeBoatSquare(boardId, board, col, row);
         return;
     } else if (boardId === "player2-boat-board") {
         lastPlacedBoatSquareCol = col;
         lastPlacedBoatSquareRow = row;
         lastPlacedBoard = player2BoatBoard;
         lastPlacedBoardId = boardId;
-        handleBoatSave(boardId, board, col, row);
+        placeBoatSquare(boardId, board, col, row);
         return;
     }
 
@@ -449,14 +345,14 @@ function checkSquare(boardId, board, col, row) {
     // if the square is empty of a hit, miss, or boat, then set it to a missed shot and switch turns
     // else if the square is already a miss or hit (a previous guess) then let the player guess again
     // else if the square is a boat, notify the player of a boat hit and switch turns
-    if (oppSquare === SQUARE_VALUE.EMPTY) {
-        board[col][row] = 1;
+    if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.EMPTY) {
+        board[col][row] = SQUARE_VALUE.MISS;
         moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed!`;
         turn *= -1;
-    } else if (oppSquare === SQUARE_VALUE.MISS || square === SQUARE_VALUE.HIT) {
+    } else if (square === SQUARE_VALUE.MISS || square === SQUARE_VALUE.HIT) {
         moreLogInfo = "You've already guess here. Take a different shot.";
-    } else if (oppSquare === SQUARE_VALUE.BOAT) {
-        board[col][row] = 2;
+    } else if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.BOAT) {
+        board[col][row] = SQUARE_VALUE.HIT;
         moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit!`;
         directHits[turn]++;
         turn *= -1;
@@ -468,6 +364,157 @@ function checkSquare(boardId, board, col, row) {
     return;
 }
 
+// Saves the boats the player enters onto their fleet board and determines if the players have enough boats
+function placeBoatSquare(boardId, board, col, row) {
+    let square = board[col][row];  // value of the square
+    
+    // if the square isn't a boat, make it a boat and return
+    if (square !== SQUARE_VALUE.UNSAVED_BOAT) {
+        board[col][row] = SQUARE_VALUE.UNSAVED_BOAT;
+        return;
+    }
+
+    // count the number of adjacent boat squares in each direction
+    let startCnt = square === SQUARE_VALUE.UNSAVED_BOAT ? 1 : 0;    // the starting square should be added if it's a boat
+    let upCnt = checkUpSquare(board, col, row);                     // count in the up direction 
+    let downCnt = checkDownSquare(board, col, row);                 // count in the down direction
+    let rightCnt = checkRightSquare(board, col, row);               // count in the right direction
+    let leftCnt = checkLeftSquare(board, col, row);                 // count in the left direction
+
+    // sum the vertical and horizontal counts
+    let upDownCnt = upCnt + downCnt + startCnt;
+    let leftRightCnt = rightCnt + leftCnt + startCnt;
+
+    // for each player board and that player has less than 5 boats determine if that player has placed that length boat yet
+    // if so, add the boat, increase the number of boats for that player, and save the selected boat
+    if (boardId == "player1-boat-board" && player1NumBoats !== TOTAL_NUM_BOATS) {
+        if (upDownCnt === BOAT_SIZES["Aircraft Carrier"] || leftRightCnt == BOAT_SIZES["Aircraft Carrier"] && !p1BoatsPlaced["Aircraft Carrier"]) {
+            p1BoatsPlaced["Aircraft Carrier"] = true;
+            player1NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Battleship"] || leftRightCnt == BOAT_SIZES["Battleship"] && !p1BoatsPlaced["Battleship"]) {
+            p1BoatsPlaced["Battleship"] = true;
+            player1NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Destroyer"] || leftRightCnt == BOAT_SIZES["Destroyer"] && !p1BoatsPlaced["Destroyer"]) {
+            p1BoatsPlaced["Destroyer"] = true;
+            player1NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Submarine"] || leftRightCnt == BOAT_SIZES["Submarine"] && !p1BoatsPlaced["Submarine"]) {
+            p1BoatsPlaced["Submarine"] = true;
+            player1NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Patrol Boat"] || leftRightCnt == BOAT_SIZES["Patrol Boat"] && !p1BoatsPlaced["Patrol Boat"]) {
+            p1BoatsPlaced["Patrol Boat"] = true;
+            player1NumBoats++;
+            saveSelectedBoat(board);
+        }
+    } else if (boardId == "player2-boat-board" && player2NumBoats !== TOTAL_NUM_BOATS) {
+        if (upDownCnt === BOAT_SIZES["Aircraft Carrier"] || leftRightCnt == BOAT_SIZES["Aircraft Carrier"] && !p2BoatsPlaced["Aircraft Carrier"]) {
+            p2BoatsPlaced["Aircraft Carrier"] = true;
+            player2NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Battleship"] || leftRightCnt == BOAT_SIZES["Battleship"] && !p2BoatsPlaced["Battleship"]) {
+            p2BoatsPlaced["Battleship"] = true;
+            player2NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Destroyer"] || leftRightCnt == BOAT_SIZES["Destroyer"] && !p2BoatsPlaced["Destroyer"]) {
+            p2BoatsPlaced["Destroyer"] = true;
+            player2NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Submarine"] || leftRightCnt == BOAT_SIZES["Submarine"] && !p2BoatsPlaced["Submarine"]) {
+            p2BoatsPlaced["Submarine"] = true;
+            player2NumBoats++;
+            saveSelectedBoat(board);
+        } else if (upDownCnt === BOAT_SIZES["Patrol Boat"] || leftRightCnt == BOAT_SIZES["Patrol Boat"] && !p2BoatsPlaced["Patrol Boat"]) {
+            p2BoatsPlaced["Patrol Boat"] = true;
+            player2NumBoats++;
+            saveSelectedBoat(board);
+        }
+    }
+
+    // flip the board visibility if Player 1 has already completed their fleet layout
+    let player1BoatsSet = false;
+    if (player1NumBoats === TOTAL_NUM_BOATS && !player1BoatsSet) {
+        player1BoatsSet = true;
+        document.getElementsByClassName("p1boards")[0].style.visibility = "hidden";
+        document.getElementsByClassName("p1boards")[1].style.visibility = "hidden";
+        document.getElementsByClassName("p2boards")[0].style.visibility = "hidden";
+        document.getElementsByClassName("p2boards")[1].style.visibility = "visible";
+    }
+
+    // once both players choose their fleet layouts, the game can begin
+    if (player1NumBoats === TOTAL_NUM_BOATS && player2NumBoats === TOTAL_NUM_BOATS) {
+        moreLogInfo = "Commence bombardment!";
+        gameStart = true;
+        undoBtn.style.visibility =  "hidden";
+    }
+    return;
+}
+
+// Checks the squares to the below of the current square
+function checkUpSquare(board, col, row) {
+    return countAdjacent(board, col, row, -1, 0);
+}
+
+// Checks the squares to the below of the current square
+function checkDownSquare(board, col, row) {
+    return countAdjacent(board, col, row, +1, 0);
+}
+
+// Checks the squares to the right of the current square
+function checkRightSquare(board, col, row) {
+    return countAdjacent(board, col, row, 0, +1);
+}
+
+// Checks the squares to the left of the current square
+function checkLeftSquare(board, col, row) {
+    return countAdjacent(board, col, row, 0, -1);
+}
+
+// Counts the adjacent squares to to determine the length of the boat squares next to current square
+function countAdjacent(board, col, row, colOffset, rowOffset) {
+    const val = board[col][row];   // value in the current square
+    let count = 0;                 // initiate a count
+    col += colOffset;              // set the current square column position to the offset
+    row += rowOffset;              // set the current square row position to the offset
+
+    // while the current square position is on the board, equal to the same value, and a boat square
+    // increase the count, column position, and row position to continue moving in the required direction
+    while (
+        board[col] !== undefined &&
+        board[col][row] !== undefined &&
+        board[col][row] === val &&
+        board[col][row] === SQUARE_VALUE.UNSAVED_BOAT
+        ) {
+            count++;
+            col += colOffset;
+            row += rowOffset;
+    }
+    return count;
+}
+
+// Save the selected boat into the player's fleet
+function saveSelectedBoat(board) {
+    // iterate through the board to look for any UNSAVED_BOAT values (4), if found, replace with a BOAT value (3)
+    board.forEach((colArr, colIdx) => {
+        colArr.forEach((cellVal, rowIdx) => {
+            if (cellVal === SQUARE_VALUE.UNSAVED_BOAT) {
+                board[colIdx][rowIdx] = SQUARE_VALUE.BOAT;
+            }
+        });
+    });
+    return;
+}
+
+// Checks if the number of boats left for a player is 0 and returns the opponent if true or nothing if there is no winner
+function getWinner(turn) {
+    if (directHits[turn] === TOTAL_HITS_TO_WIN) {
+        winner = turn;
+    }
+    return;
+}
+
 // Updates the UI with changes throughout gameplay
 function render() {
     renderPlayer1BoatBoard();                     // updates player1's guess board
@@ -475,12 +522,11 @@ function render() {
     renderPlayer2BoatBoard();                     // updates player2's boat board
     renderPlayer2GuessBoard();                    // updates player2's boat board
     renderGameLog();                              // updates the game log to display gameplay moments
-    renderControls();                             // hides the boat placement buttons
     if (gameStart) renderBoardVisibility();       // switches between the players' board's visibility
     return;
 }
 
-// ------------------------------ Updates game boards with boats and hits/misses ------------------------------
+// Updates Player 1's Boat Board with boats and hits/misses
 function renderPlayer1BoatBoard() {
     // iterate over Player 1's fleet rows and columns
     player1BoatBoard.forEach((colArr, colIdx) => {
@@ -496,6 +542,7 @@ function renderPlayer1BoatBoard() {
     return;
 }
 
+// Updates Player 1's Guess Board with boats and hits/misses
 function renderPlayer1GuessBoard() {
     // iterate over Player 1's fleet rows and columns
     player1GuessBoard.forEach((colArr, colIdx) => {
@@ -511,6 +558,7 @@ function renderPlayer1GuessBoard() {
     return;
 }
 
+// Updates Player 2's Guess Board with boats and hits/misses
 function renderPlayer2GuessBoard() {
     // iterate over Player 1's fleet rows and columns
     player2GuessBoard.forEach((colArr, colIdx) => {
@@ -526,6 +574,7 @@ function renderPlayer2GuessBoard() {
     return;
 }
 
+// Updates Player 2's Boat Board with boats and hits/misses
 function renderPlayer2BoatBoard() {
     // iterate over Player 1's fleet rows and columns
     player2BoatBoard.forEach((colArr, colIdx) => {
@@ -540,7 +589,6 @@ function renderPlayer2BoatBoard() {
     });
     return;
 }
-// ------------------------------------------------------------------------------------------------------------
 
 // Change the color of the square based on the value of the square
 function renderSquareColor(cellVal, coordsEl) {
@@ -559,7 +607,7 @@ function renderSquareColor(cellVal, coordsEl) {
             coordsEl.style.backgroundColor = "dimgrey";
             break;
         case SQUARE_VALUE.UNSAVED_BOAT:
-            coordsEl.style.backgroundColor = "dimgrey";
+            coordsEl.style.backgroundColor = "grey";
             break;
     }
     return;
@@ -573,6 +621,8 @@ function renderGameLog() {
         let opponent = winner * -1;
         messageEl.innerHTML = `${PLAYER_VALUE[opponent]}'s fleet has been sunk!<br>${PLAYER_VALUE[winner]} wins!`;
         gameStart = false;
+
+        // show all the game boards
         document.getElementsByClassName("p2boards")[0].style.visibility = "visible";
         document.getElementsByClassName("p2boards")[1].style.visibility = "visible";
         document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
@@ -582,16 +632,6 @@ function renderGameLog() {
     } else {
         messageEl.innerHTML = `${moreLogInfo}<br>${PLAYER_VALUE[turn]}'s turn`;
     }
-    return;
-}
-
-// Hides the boat placement buttons once the both fleets have been locked and the game has begun
-function renderControls() {
-    undoBtn.style.visibility = (player1NumBoats === 5 
-                              && player2NumBoats === 5 
-                              && !gameStart) 
-                               ? "hidden" 
-                               : "visible";
     return;
 }
 
@@ -606,7 +646,7 @@ function renderBoardVisibility() {
         setTimeout(()=>{
             document.getElementsByClassName("p2boards")[0].style.visibility = "visible";
             document.getElementsByClassName("p2boards")[1].style.visibility = "visible";
-        }, 10);
+        }, timeIntervalBoardSwitch);
     } else {
         document.getElementsByClassName("p2boards")[0].style.visibility = "hidden";
         document.getElementsByClassName("p2boards")[1].style.visibility = "hidden";
@@ -615,6 +655,7 @@ function renderBoardVisibility() {
         setTimeout(()=>{
             document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
             document.getElementsByClassName("p1boards")[1].style.visibility = "visible";
-        }, 10);        
+        }, timeIntervalBoardSwitch);        
     }
+    return;
 }
