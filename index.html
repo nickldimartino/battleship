@@ -13,12 +13,24 @@
 <div id="rules">
     <strong>GAME RULES:</strong><BR>
     <strong>GOAL: </strong>Be the first to sink all five of your opponent's ships.<br>
-    <strong>GAMEPLAY: </strong>Pick a fleet layout by placing the five ships on your board vertically or horizontally. 
-    Boat positions cannot be changed once the game has begun. Take turns alternating guesses to hit each other's ships.<br>
-    <strong>Legend:</strong><br>
+    <strong>GAMEPLAY: </strong>Take turns alternating guesses to hit each other's ships. The first peson to sink all of their opponent's ships wins.<br>
+    <strong>LEGEND:</strong><br>
     -Red squares designate hits.<br>
     -White squares designate misses.<br>
-    -Grey squares designate your ships.
+    -Grey squares designate your ships.<br>
+    -Lightgrey squares designate unsaved boat position.
+</div>
+<div id="boat-placement-instructions">
+    <strong>BOAT PLACEMENT INSTRUCTIONS:</strong><BR>
+    <strong>GOAL: </strong>Place all fice boats on your game board.<br>
+    <strong>HOW TO: </strong>Boats must be placed horiozontally or vertically and they can't be changed once the game has started. Pick on ship and place those
+    number of squares next to each other. Then, click any one of those ships' squares to lock it.<br>
+    <strong>LEGEND:</strong><br>
+    -Aircraft Carrier: 5 squares<br>
+    -Battleship: 4 squares<br>
+    -Destroyer: 3 squares<br>
+    -Submarine: 3 squares<br>
+    -Patrol Boat: 2 squares<br>
 </div>
 <body>
     <header>BATTLESHIP</header>
@@ -475,14 +487,10 @@
             <div id="j10"></div>
         </section>
     </section>
-    <button id="new-game-btn">New Game</button>
-    <div id="boat-buttons">
-        <button id="place-aircraft-carrier-btn" class="boat-btn">Aircraft Carrier</button>
-        <button id="place-battleship-btn" class="boat-btn">Battleship</button>
-        <button id="place-destroyer-btn" class="boat-btn">Destroyer</button>
-        <button id="place-submarine-btn" class="boat-btn">Submarine</button>
-        <button id="place-patrol-boat-btn" class="boat-btn">Patrol Boat</button>
-        <button id="lock-fleet-btn">Lock Fleet and Begin!</button>
-    </div>
+    <section id="in-game-btns">
+        <button id="new-game-btn">New Game</button>
+        <button id="show-hide-rules-btn">Show/Hide Rules</button>
+    </section>
+    <button id="undo-btn">Undo Placement</button>
 </body>
 </html>
