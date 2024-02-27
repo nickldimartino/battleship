@@ -104,7 +104,7 @@ header {
     font-size: 10px;
 }
 
-#show-hide-rules-btn, #undo-btn, #new-game-btn, #set-time {
+#show-hide-rules-btn, #undo-btn, #new-game-btn, #set-time, #time-input {
     border: 1px solid white;
     border-radius: 4px;
     margin-left: 5px;
@@ -120,10 +120,10 @@ header {
     cursor: pointer;
 }
 
-#time-input {
-    background-color: black;
-    color: white;
-    border: 1px solid white;
+#set-time:hover {
+    transform: scale(1.05);
+    transition: transform 105ms case-in;
+    cursor: pointer;
 }
 
 #time-input::placeholder {

@@ -32,8 +32,8 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
-const TOTAL_HITS_TO_WIN = 2;  // sum of the amount of hits for all boats
-const TOTAL_NUM_BOATS = 2;     // total number of boats a player needs  
+const TOTAL_HITS_TO_WIN = 17;  // sum of the amount of hits for all boats
+const TOTAL_NUM_BOATS = 5;     // total number of boats a player needs  
 
 
 /*----- app's state (variables) -----*/

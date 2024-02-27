@@ -11,6 +11,5 @@ following data was the time table for my work.
 Thursday, February 22nd: Wireframe and Pseudocode plan - 2 hours <br /> 
 Friday, February 23rd: First draft of HTML and CSS completed - 6 hours <br /> 
 Sunday, February 25th: Turns based-system of game completed - 7 hours <br /> 
-Monday, February 26nd: Quality of life features for turn-based system and code refactoring and <br /> 
-comments completed - 9 hours <br /> 
+Monday, February 26nd: Quality of life features for turn-based system, code refactoring, and comments completed - 9 hours <br /> 
 Tuesday, February 22nd: Updated the UI to be more user friendly, smoothed out turn-based system, and <br /> fixed bugs.  Game is operational and ready for presentation - 7 hours 
