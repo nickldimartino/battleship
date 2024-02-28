@@ -32,8 +32,6 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
-//let sound = new Audio();
-
 // Audio sounds
 const AUDIO = {
     GAME_START: new Audio("./audio/game_start.m4a"),
@@ -44,8 +42,8 @@ const AUDIO = {
 
 
 /*----- testing constants -----*/
-const TOTAL_HITS_TO_WIN = 17;            // sum of the amount of hits needed for all boats
-const TOTAL_NUM_BOATS = 5;               // total number of boats a player needs  
+const TOTAL_HITS_TO_WIN = 17;             // sum of the amount of hits needed for all boats
+const TOTAL_NUM_BOATS = 5;                // total number of boats a player needs  
 
 
 /*----- app's state (variables) -----*/
@@ -195,7 +193,7 @@ function init() {
         "Patrol Boat": false,
     }
 
-    turn = -1;                              // play starts with player2
+    turn = 1;                               // play starts with player2
     winner = null;                          // there is no winner on initialization
     player1NumBoats = 0;                    // player1 starts with 0 boats
     player2NumBoats = 0;                    // player2 starts with 0 boats
@@ -399,7 +397,10 @@ function handleSquare(evt) {
 
 // Check the squares clicked by the player
 function checkSquare(boardId, board, col, row) {
-    let oppBoard;    // opponent's board
+    let oppBoard;                     // opponent's board
+    lastPlacedBoatSquareCol = col;    // last placed boat square column
+    lastPlacedBoatSquareRow = row;    // last placed boat square row
+    lastPlacedBoardId = boardId;      // last placed boat square boardId
 
     // determine the opponent's board from the player guessing to link them
     // if it's the fleet boards, save off the last clicked square and try to place the boat square
@@ -408,17 +409,11 @@ function checkSquare(boardId, board, col, row) {
     } else if (boardId === "player2-guess-board") {
         oppBoard = player1BoatBoard;
     } else if (boardId === "player1-boat-board" && !gameStart) {
-        lastPlacedBoatSquareCol = col;
-        lastPlacedBoatSquareRow = row;
         lastPlacedBoard = player1BoatBoard;
-        lastPlacedBoardId = boardId;
         placeBoatSquare(boardId, board, col, row);
         return;
     } else if (boardId === "player2-boat-board" && !gameStart) {
-        lastPlacedBoatSquareCol = col;
-        lastPlacedBoatSquareRow = row;
         lastPlacedBoard = player2BoatBoard;
-        lastPlacedBoardId = boardId;
         placeBoatSquare(boardId, board, col, row);
         return;
     }
@@ -431,15 +426,15 @@ function checkSquare(boardId, board, col, row) {
     // else if the square is a boat, notify the player of a boat hit and switch turns
     if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.EMPTY) {
         board[col][row] = SQUARE_VALUE.MISS;
-        moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed!`;
+        moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed at ${COORDINATE_LOOKUP[lastPlacedBoatSquareCol].toUpperCase()}-${lastPlacedBoatSquareRow}!`;
         turn *= -1;
         if (playAudio) playSound(AUDIO.SPLASH);
     } else if (square === SQUARE_VALUE.MISS || square === SQUARE_VALUE.HIT) {
-        moreLogInfo = "You've already guess here. Take a different shot.";
+        moreLogInfo = `You've already guessed ${COORDINATE_LOOKUP[lastPlacedBoatSquareCol].toUpperCase()}-${lastPlacedBoatSquareRow}. Take a different shot.`;
     } else if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.BOAT) {
         board[col][row] = SQUARE_VALUE.HIT;
         if (playAudio) playSound(AUDIO.EXPLOSION);
-        moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit!`;
+        moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit at ${COORDINATE_LOOKUP[lastPlacedBoatSquareCol].toUpperCase()}-${lastPlacedBoatSquareRow}!`;
         directHits[turn]++;
         turn *= -1;
     }
@@ -753,4 +748,80 @@ function renderBoardVisibility() {
         }, timeIntervalBoardSwitch);        
     }
     return;
+}
+
+/* ------ CPU Player (In Progress: not implemented into above game) ------ */
+let cpuBoard1 = [
+    [3, 3, 3, 3, 3, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 3, 3, 3, 3, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 3, 3, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+let cpuBoard2 = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 3, 3, 0, 3, 3, 3],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [3, 3, 3, 3, 3, 0, 3, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+];
+    
+// Generate random Guess
+function generateCPUGuess() {
+    let col; let row; 
+    let guess;
+    const guessedCoords = [];
+
+    while (guessedCoords.length < 100) {
+        col = Math.floor(Math.random() * 10)+1;
+        row = Math.floor(Math.random() * 10)+1;
+        guess = (`${COORDINATE_LOOKUP[col]}${row}`);
+        if (!guessedCoords.includes(guess)) {
+            guessedCoords.push(guess);
+        }
+    }
+
+    return [col, row];
+}
+
+// Generate random CPU Board
+function generateCPUBoard() {
+    // let cpuBoard = [
+    //     [0, 0, 0, 0, 0, 0, 4, 0, 0, 0], 
+    //     [0, 0, 0, 0, 0, 0, 4, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 4, 0, 0, 0],
+    //     [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    //     [0, 0, 0, 4, 0, 0, 4, 0, 0, 0],
+    //     [0, 0, 0, 4, 0, 0, 4, 0, 0, 0],
+    //     [0, 0, 0, 4, 4, 4, 4, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 4, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 4, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 4, 0, 0, 0],
+    // ];
+    // const randomRowCol = Math.round(Math.random());
+    // const randomBoatLength = Math.floor(Math.random() * (6-2) )+2;
+
+    // let guess = generateCPUGuess();
+    // let guessCol = guess[0];
+    // let guessRow = guess[1];
+
+    // if (randomRowCol === 1) {
+    //     let upCnt = checkUpSquare(cpuBoard, guessCol, guessRow);
+    //     let downCnt = checkDownSquare(cpuBoard, guessCol, guessRow);
+    //     console.log(upCnt, downCnt);
+    // } else if (randomRowCol === 0) {
+    //     let leftCnt = checkLeftSquare(cpuBoard, guessCol, guessRow);
+    //     let rightCnt = checkRightSquare(cpuBoard, guessCol, guessRow);
+    //     console.log(leftCnt, rightCnt);
+    // }
 }
