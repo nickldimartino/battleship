@@ -1,3 +1,33 @@
+# Battleship Game
+A description of your game. Background info of the game is a nice touch.
+
+# Screenshot
+
+<img src="url to your image on imgur">
+<img src="url to your image on imgur">
+
+# Technologies Used
+
+- JavaScript
+- HTML
+- CSS
+
+# Getting Started
+
+[Click to View Project Planning](your Trello url here)
+[Click to Play Connect Four!](your deployment url here)
+
+# Next Steps
+
+- Future enhancement one...
+- Future enhancement two... 
+
+
+
+
+
+
+
 # Battleship-Game
 
 This is the game of Battleship! It functions the same way as the traditional game.  Each player must choose the layout of their fleet of five boats: Aircraft Carrier, Battleship, Destroyer, Submarine and Patrol Boat.  Once each player has chosen their layout, the game begins!  Players alternate guesses to find their opponet's boats.  The first player to sink all five of their opponet's ships wins! <br /> 

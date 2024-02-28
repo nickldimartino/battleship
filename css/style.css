@@ -62,7 +62,7 @@ body {
     min-width: 300px;
     max-width: 300px;
     min-height: 130px;
-    max-height: 150px;
+    max-height: 170px;
     background-color: var(--rules-background);
     border: 2px solid var(--rules-border);
     position: absolute;
