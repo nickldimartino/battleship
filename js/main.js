@@ -32,8 +32,10 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
-const TOTAL_HITS_TO_WIN = 17;  // sum of the amount of hits for all boats
-const TOTAL_NUM_BOATS = 5;     // total number of boats a player needs  
+
+/*----- testing constants -----*/
+const TOTAL_HITS_TO_WIN = 2;            // sum of the amount of hits needed for all boats
+const TOTAL_NUM_BOATS = 2;              // total number of boats a player needs  
 
 
 /*----- app's state (variables) -----*/
@@ -52,10 +54,11 @@ let lastPlacedBoatSquareCol;            // holds the last clicked board column
 let lastPlacedBoatSquareRow;            // holds the last clicked board row
 let lastPlacedBoardId;                  // holds the last clicked board id
 let timeIntervalBoardSwitch             // holds the time interval for the boards when alternating turns
+let themeValue;                         // value for the game color theme (1 or 2)
 let directHits = {                      // number of hits each player has taken
     "1": 0, 
     "-1": 0 
-}; 
+}
 let p1BoatsPlaced = {                   // player 1's placed boats
     "Aircraft Carrier": false,
     "Battleship": false,
@@ -73,15 +76,14 @@ let p2BoatsPlaced = {                   // player 2's placed boats
 
 
 /*----- cached element references -----*/
-const messageEl = document.getElementById("game-log");                                       // game log 
-const takeGuessBtn = document.getElementById("take-guess-btn");                              // take guess button
-const lockFleetBtn = document.getElementById("lock-fleet-btn");                              // lock fleet button
-const newGameBtn = document.getElementById("new-game-btn");                                  // new game button
-const gameRules = document.getElementById("rules");                                          // game rules
 const boatPlacementInstructions = document.getElementById("boat-placement-instructions");    // boat placement instructions button
+const gameRules = document.getElementById("rules");                                          // game rules
+const messageEl = document.getElementById("game-log");                                       // game log                              // take guess button
+const changeThemeBtn = document.getElementById("change-theme");                              // change theme button
+const newGameBtn = document.getElementById("new-game-btn");                                  // new game button
 const undoBtn = document.getElementById("undo-btn");                                         // undo button
 const setTimeBtn = document.getElementById("set-time");                                      // set time interval of the boards switching
-const timeInputField = document.getElementById("time-input");
+const timeInputField = document.getElementById("time-input");                                // input field for a user inputted time
 const p1bSquareEls = [...document.querySelectorAll("#player1-boat-board > div")];            // squares in the P1 Boat Board
 const p1gSquareEls = [...document.querySelectorAll("#player1-guess-board > div")];           // squares in the P1 GUess Board
 const p2gSquareEls = [...document.querySelectorAll("#player2-guess-board > div")];           // squares in the P2 Guess Board
@@ -89,6 +91,7 @@ const p2bSquareEls = [...document.querySelectorAll("#player2-boat-board > div")]
 
 
 /*----- event listeners -----*/
+changeThemeBtn.addEventListener("click", handleChangeTheme);                                                            // listens for click on new game button
 newGameBtn.addEventListener("click", init);                                                            // listens for click on new game button
 undoBtn.addEventListener("click", handleUndo);                                                         // listens for click on undo button
 setTimeBtn.addEventListener("click", handleSetTime);                                                   // listens for click on set time button
@@ -177,7 +180,7 @@ function init() {
         "Patrol Boat": false,
     }
 
-    turn = 1;                               // play starts with player1
+    turn = -1;                              // play starts with player2
     winner = null;                          // there is no winner on initialization
     player1NumBoats = 0;                    // player1 starts with 0 boats
     player2NumBoats = 0;                    // player2 starts with 0 boats
@@ -189,8 +192,9 @@ function init() {
     lastPlacedBoatSquareCol = null;         // the board has not been clicked yet
     lastPlacedBoatSquareRow = null;         // the board has not been clicked yet
     lastPlacedBoardId = null;               // the board has not been clicked yet
-    undoBtn.style.visibility = "visibile";  // should be visible on new game
+    undoBtn.style.visibility = "visible";   // should be visible on new game
     timeIntervalBoardSwitch = 1;            // time for boards to switch is 1 second;
+    themeValue = 1;
 
     // start the game with on Player 1's Boat Board showing so they can pick their fleet
     document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
@@ -202,18 +206,76 @@ function init() {
     return;
 }
 
+// Changes the theme of the game
+function handleChangeTheme() {
+    if (themeValue === 1) {
+        document.querySelector(":root").style.setProperty("--body-background", "white");
+        document.querySelector(":root").style.setProperty("--rules-background", "beige");
+        document.querySelector(":root").style.setProperty("--rules-border", "black");
+        document.querySelector(":root").style.setProperty("--rules-color", "black");
+        document.querySelector(":root").style.setProperty("--header-color", "black");
+        document.querySelector(":root").style.setProperty("--game-log-border", "black");
+        document.querySelector(":root").style.setProperty("--game-log-background-color", "beige");
+        document.querySelector(":root").style.setProperty("--game-log-color", "black");
+        document.querySelector(":root").style.setProperty("--board-label-color", "black");
+        document.querySelector(":root").style.setProperty("--board-border", "black");
+        document.querySelector(":root").style.setProperty("--board-div-border", "rgb(173, 216, 230)");
+        document.querySelector(":root").style.setProperty("--square-hover-class-background-color", "green");
+        document.querySelector(":root").style.setProperty("--grid-coord-color", "white");
+        document.querySelector(":root").style.setProperty("--buttons-border", "black");
+        document.querySelector(":root").style.setProperty("--buttons-color", "black");
+        document.querySelector(":root").style.setProperty("--buttons-background-color", "tomato");
+        document.querySelector(":root").style.setProperty("--time-input-placehold-color", "dimgrey");
+        themeValue = 2;
+        return;
+    } else if (themeValue === 2) {
+        document.querySelector(":root").style.setProperty("--body-background", "radial-gradient(khaki, crimson)");
+        document.querySelector(":root").style.setProperty("--rules-background", "white");
+        document.querySelector(":root").style.setProperty("--rules-border", "black");
+        document.querySelector(":root").style.setProperty("--rules-color", "black");
+        document.querySelector(":root").style.setProperty("--header-color", "black");
+        document.querySelector(":root").style.setProperty("--game-log-border", "black");
+        document.querySelector(":root").style.setProperty("--game-log-background-color", "beige");
+        document.querySelector(":root").style.setProperty("--game-log-color", "black");
+        document.querySelector(":root").style.setProperty("--board-label-color", "black");
+        document.querySelector(":root").style.setProperty("--board-border", "black");
+        document.querySelector(":root").style.setProperty("--board-div-border", "rgb(173, 216, 230)");
+        document.querySelector(":root").style.setProperty("--square-hover-class-background-color", "green");
+        document.querySelector(":root").style.setProperty("--grid-coord-color", "white");
+        document.querySelector(":root").style.setProperty("--buttons-border", "white");
+        document.querySelector(":root").style.setProperty("--buttons-color", "white");
+        document.querySelector(":root").style.setProperty("--buttons-background-color", "black");
+        document.querySelector(":root").style.setProperty("--time-input-placeholder-color", "white");
+        themeValue = 1;
+        return;
+    }
+}
+
 // Removes the last placed boat square
 function handleUndo() {
     // if the last square clicked was already locked into a boat, then notify the player it can't be undone
-    if (lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] !== SQUARE_VALUE.UNSAVED_SHIP) {
+    if (lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] === SQUARE_VALUE.BOAT) {
         messageEl.innerText = "You can't undo a ship once it's been locked in place";
         return;
     }
+
     // sets the plast placed boat square value to 0 to mark as "empty"
     lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] = SQUARE_VALUE.EMPTY;
+    let pfx;
+    
+    // determines the prefix of the id for each grid square based on the last board clicked
+    if (lastPlacedBoardId === "player1-boat-board") {
+        pfx = "p1b-";
+    } else if (lastPlacedBoardId === "player1-guess-board") {
+        pfx = "p1g-";
+    } else if (lastPlacedBoardId === "player2-guess-board") {
+        pfx = "p2g-";
+    } else if (lastPlacedBoardId === "player2-boat-board") {
+        pfx = "p2b-";
+    }  
     
     // gets the element that was last clicked
-    const coords = `${COORDINATE_LOOKUP[lastPlacedBoatSquareCol+1]}${lastPlacedBoatSquareRow+1}`;
+    const coords = `${pfx}${COORDINATE_LOOKUP[lastPlacedBoatSquareCol+1]}${lastPlacedBoatSquareRow+1}`;
     const coordsEl = document.querySelector(`#${lastPlacedBoardId} > #${coords}`);
 
     // remove the grey color that designates a placed boat square
@@ -244,7 +306,7 @@ function handleSetTime() {
 
 // Click event handlers for the squares on each board
 function handleSquare(evt) {
-    const boardId = evt.currentTarget.id;   // id of the board clicked on
+    const boardId = evt.currentTarget.id;   // id of the board from the square clicked
     let square; let board;
     let col; let row;
 
@@ -316,21 +378,21 @@ function handleSquare(evt) {
 // Check the squares clicked by the player
 function checkSquare(boardId, board, col, row) {
     let oppBoard;    // opponent's board
-    
+
     // determine the opponent's board from the player guessing to link them
     // if it's the fleet boards, save off the last clicked square and try to place the boat square
     if (boardId === "player1-guess-board") {
         oppBoard = player2BoatBoard;
     } else if (boardId === "player2-guess-board") {
         oppBoard = player1BoatBoard;
-    } else if (boardId === "player1-boat-board") {
+    } else if (boardId === "player1-boat-board" && !gameStart) {
         lastPlacedBoatSquareCol = col;
         lastPlacedBoatSquareRow = row;
         lastPlacedBoard = player1BoatBoard;
         lastPlacedBoardId = boardId;
         placeBoatSquare(boardId, board, col, row);
         return;
-    } else if (boardId === "player2-boat-board") {
+    } else if (boardId === "player2-boat-board" && !gameStart) {
         lastPlacedBoatSquareCol = col;
         lastPlacedBoatSquareRow = row;
         lastPlacedBoard = player2BoatBoard;
@@ -357,7 +419,7 @@ function checkSquare(boardId, board, col, row) {
         directHits[turn]++;
         turn *= -1;
     }
-    
+
     // check if the most recent turn was the final hit to find a winner
     let lastTurn = turn * -1;
     getWinner(lastTurn);
@@ -447,7 +509,7 @@ function placeBoatSquare(boardId, board, col, row) {
     if (player1NumBoats === TOTAL_NUM_BOATS && player2NumBoats === TOTAL_NUM_BOATS) {
         moreLogInfo = "Commence bombardment!";
         gameStart = true;
-        undoBtn.style.visibility =  "hidden";
+        undoBtn.style.visibility = "hidden";
     }
     return;
 }
@@ -532,7 +594,7 @@ function renderPlayer1BoatBoard() {
     player1BoatBoard.forEach((colArr, colIdx) => {
         colArr.forEach((cellVal, rowIdx) => {
             // determine the coordinate from the column and row indices and link the respective HTML element
-            const coords = `${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
+            const coords = `p1b-${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
             const coordsEl = document.querySelector(`#player1-boat-board > #${coords}`);
             
             // using each cell value, color the square based on if it's a hit, miss, or boat
@@ -548,7 +610,7 @@ function renderPlayer1GuessBoard() {
     player1GuessBoard.forEach((colArr, colIdx) => {
         colArr.forEach((cellVal, rowIdx) => {
             // determine the coordinate from the column and row indices and link the respective HTML element
-            const coords = `${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
+            const coords = `p1g-${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
             const coordsEl = document.querySelector(`#player1-guess-board > #${coords}`);
 
             // using each cell value, color the square based on if it's a hit, miss, or boat
@@ -564,7 +626,7 @@ function renderPlayer2GuessBoard() {
     player2GuessBoard.forEach((colArr, colIdx) => {
         colArr.forEach((cellVal, rowIdx) => {
             // determine the coordinate from the column and row indices and link the respective HTML element
-            const coords = `${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
+            const coords = `p2g-${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
             const coordsEl = document.querySelector(`#player2-guess-board > #${coords}`);
 
             // using each cell value, color the square based on if it's a hit, miss, or boat
@@ -580,7 +642,7 @@ function renderPlayer2BoatBoard() {
     player2BoatBoard.forEach((colArr, colIdx) => {
         colArr.forEach((cellVal, rowIdx) => {
             // determine the coordinate from the column and row indices and link the respective HTML element
-            const coords = `${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
+            const coords = `p2b-${COORDINATE_LOOKUP[colIdx+1]}${rowIdx+1}`;
             const coordsEl = document.querySelector(`#player2-boat-board > #${coords}`);
 
             // using each cell value, color the square based on if it's a hit, miss, or boat

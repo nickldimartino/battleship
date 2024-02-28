@@ -1,3 +1,24 @@
+:root {
+    --body-background: radial-gradient(khaki, crimson);
+    --rules-background: white;
+    --rules-border: black;
+    --rules-color: black;
+    --header-color: black;
+    --game-log-border: black;
+    --game-log-background-color: beige;
+    --game-log-color: black;
+    --board-label-color: black;
+    --board-image: url(/imgs/water.jpg);
+    --board-border: black;
+    --board-div-border: rgb(173, 216, 230);
+    --square-hover-class-background-color: green;
+    --grid-coord-color: white;
+    --buttons-border: white;
+    --buttons-color: white;
+    --buttons-background-color: black;
+    --time-input-placeholder-color: darkgrey;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -9,22 +30,23 @@ body {
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    background: radial-gradient(khaki, crimson);
+    background: var(--body-background);
     font-family: "Anta", sans-serif;
 }
 
-#rules, #boat-placement-instructions {
+#rules, 
+#boat-placement-instructions {
     min-width: 300px;
     max-width: 300px;
     min-height: 130px;
     max-height: 150px;
-    background-color: white;
-    border: 2px solid black;
+    background-color: var(--rules-background);
+    border: 2px solid var(--rules-border);
     position: absolute;
     top: 0.2em;
     font-size: 10px;
     padding: 2px;
-    color: black;
+    color: var(--rules-color);
 }
 
 #rules {
@@ -37,9 +59,8 @@ body {
 
 header {
     font-size: 7vmin;
-    color: black;
+    color: var(--header-color);
     letter-spacing: 2vmin;
-    color: black;
 }
 
 #game-log {
@@ -47,13 +68,13 @@ header {
     justify-content: center;
     align-items: center;
     text-align: center;
-    border: 2px solid black;
-    background-color: beige;
+    border: 2px solid var(--game-log-border);
+    background-color: var(--game-log-background-color);
     min-height: 50px;
     min-height: 50px;
     min-width: 300px;
     max-width: 300px;
-    color: black;
+    color: var(--game-log-color);
 }
 
 #board-labels {
@@ -64,7 +85,7 @@ header {
 .board-label {
     margin-left: 64px;
     margin-right: 64px;
-    color: black;
+    color: var(--board-label-color);
 }
 
 #boards {
@@ -76,12 +97,12 @@ header {
     display: grid;
     grid-template-columns: repeat(10, 4.5vmin);
     grid-template-rows: repeat(10, 4.5vmin);
-    background-image: url(/imgs/water.jpg);
-    border: 4px solid black;
+    background-image: var(--board-image);
+    border: 4px solid var(--board-border);
 }
 
 .board > div {
-    border: 1px solid rgb(173, 216, 230);
+    border: 1px solid var(--board-div-border);
     background-color: transparent;
 }
 
@@ -93,28 +114,40 @@ header {
 }
 
 .SquareHoverClass:hover {
-    background-color: green !important; 
+    background-color: var(--square-hover-class-background-color) !important; 
     transform: scale(1.1);
     transition: transform 105ms case-in;
     cursor: pointer;
 }
 
 .grid-coord {
-    color: white;
+    color: var(--grid-coord-color);
     font-size: 10px;
 }
 
-#show-hide-rules-btn, #undo-btn, #new-game-btn, #set-time, #time-input {
-    border: 1px solid white;
+#in-game-btns {
+    display: flex;
+}
+
+#show-hide-rules-btn, 
+#undo-btn, 
+#new-game-btn,
+#set-time, 
+#time-input, 
+#change-theme {
+    border: 1px solid var(--buttons-border);
     border-radius: 4px;
     margin-left: 5px;
     margin-right: 5px;
-    color: white;
-    background-color: black;
+    color: var(--buttons-color);
+    background-color: var(--buttons-background-color);
     padding: 3px;
 }
 
-#show-hide-rules-btn:hover, #new-game-btn:hover, #undo-btn:hover {
+#show-hide-rules-btn:hover, 
+#new-game-btn:hover, 
+#undo-btn:hover,
+#change-theme:hover {
     transform: scale(1.1);
     transition: transform 105ms case-in;
     cursor: pointer;
@@ -126,6 +159,11 @@ header {
     cursor: pointer;
 }
 
+#arrow {
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
 #time-input::placeholder {
-    color: darkgrey;
+    color: var(--time-input-placeholder-color);
 }
