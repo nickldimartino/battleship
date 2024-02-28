@@ -265,7 +265,7 @@ function handleChangeTheme() {
         document.querySelector(":root").style.setProperty("--buttons-border", "white");
         document.querySelector(":root").style.setProperty("--buttons-color", "white");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "black");
-        document.querySelector(":root").style.setProperty("--time-input-placeholder-color", "white");
+        document.querySelector(":root").style.setProperty("--time-input-placeholder-color", "grey");
         themeValue = 1;
         return;
     }

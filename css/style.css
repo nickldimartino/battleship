@@ -15,7 +15,6 @@
     --hit-count-border: white;
     --board-label-color: black;
     --board-image: url(//images.pond5.com/water-surface-background-animation-footage-058330083_iconl.jpeg);
-    /* --board-image: url(../imgs/water.jpg); */
     --board-border: black;
     --board-div-border: rgb(173, 216, 230);
     --square-hover-class-background-color: green;
@@ -23,7 +22,7 @@
     --buttons-border: white;
     --buttons-color: white;
     --buttons-background-color: black;
-    --time-input-placeholder-color: darkgrey;
+    --time-input-placeholder-color: grey;
 }
 
 * {
