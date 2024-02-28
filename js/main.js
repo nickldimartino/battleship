@@ -32,10 +32,20 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
+//let sound = new Audio();
+
+// Audio sounds
+const AUDIO = {
+    GAME_START: new Audio("./audio/game_start.m4a"),
+    SPLASH: new Audio("./audio/splash.m4a"),
+    EXPLOSION: new Audio("./audio/explosion.m4a"),
+    VICTORY: new Audio("./audio/victory.m4a")
+}
+
 
 /*----- testing constants -----*/
-const TOTAL_HITS_TO_WIN = 2;            // sum of the amount of hits needed for all boats
-const TOTAL_NUM_BOATS = 2;              // total number of boats a player needs  
+const TOTAL_HITS_TO_WIN = 17;            // sum of the amount of hits needed for all boats
+const TOTAL_NUM_BOATS = 5;               // total number of boats a player needs  
 
 
 /*----- app's state (variables) -----*/
@@ -55,6 +65,7 @@ let lastPlacedBoatSquareRow;            // holds the last clicked board row
 let lastPlacedBoardId;                  // holds the last clicked board id
 let timeIntervalBoardSwitch             // holds the time interval for the boards when alternating turns
 let themeValue;                         // value for the game color theme (1 or 2)
+let playAudio;                          // holds sound playing boolean
 let directHits = {                      // number of hits each player has taken
     "1": 0, 
     "-1": 0 
@@ -78,12 +89,15 @@ let p2BoatsPlaced = {                   // player 2's placed boats
 /*----- cached element references -----*/
 const boatPlacementInstructions = document.getElementById("boat-placement-instructions");    // boat placement instructions button
 const gameRules = document.getElementById("rules");                                          // game rules
-const messageEl = document.getElementById("game-log");                                       // game log                              // take guess button
+const messageEl = document.getElementById("game-log");                                       // game log  
 const changeThemeBtn = document.getElementById("change-theme");                              // change theme button
 const newGameBtn = document.getElementById("new-game-btn");                                  // new game button
-const undoBtn = document.getElementById("undo-btn");                                         // undo button
 const setTimeBtn = document.getElementById("set-time");                                      // set time interval of the boards switching
 const timeInputField = document.getElementById("time-input");                                // input field for a user inputted time
+const muteBtn = document.getElementById("mute-btn");                                         // mutes audio for the game
+const undoBtn = document.getElementById("undo-btn");                                         // undo button
+const p1HitCount = document.getElementById("p1-hit-count");                                  // hit count for player 1
+const p2HitCount = document.getElementById("p2-hit-count");                                  // hit count for player 2
 const p1bSquareEls = [...document.querySelectorAll("#player1-boat-board > div")];            // squares in the P1 Boat Board
 const p1gSquareEls = [...document.querySelectorAll("#player1-guess-board > div")];           // squares in the P1 GUess Board
 const p2gSquareEls = [...document.querySelectorAll("#player2-guess-board > div")];           // squares in the P2 Guess Board
@@ -91,10 +105,11 @@ const p2bSquareEls = [...document.querySelectorAll("#player2-boat-board > div")]
 
 
 /*----- event listeners -----*/
-changeThemeBtn.addEventListener("click", handleChangeTheme);                                                            // listens for click on new game button
+changeThemeBtn.addEventListener("click", handleChangeTheme);                                           // listens for click on change theme button
 newGameBtn.addEventListener("click", init);                                                            // listens for click on new game button
-undoBtn.addEventListener("click", handleUndo);                                                         // listens for click on undo button
 setTimeBtn.addEventListener("click", handleSetTime);                                                   // listens for click on set time button
+undoBtn.addEventListener("click", handleUndo);                                                         // listens for click on undo button
+muteBtn.addEventListener("click", handleMuteSound);                                                    // listens for click on mute sound button
 document.getElementById("show-hide-rules-btn").addEventListener("click", handleShowHideGameRules);     // listens for click on show/hide rules button
 document.getElementById("player1-boat-board").addEventListener("click", handleSquare);                 // listens for click on P1 Boat Board button
 document.getElementById("player1-guess-board").addEventListener("click", handleSquare);                // listens for click on P1 Guess Board button
@@ -193,8 +208,9 @@ function init() {
     lastPlacedBoatSquareRow = null;         // the board has not been clicked yet
     lastPlacedBoardId = null;               // the board has not been clicked yet
     undoBtn.style.visibility = "visible";   // should be visible on new game
-    timeIntervalBoardSwitch = 1;            // time for boards to switch is 1 second;
-    themeValue = 1;
+    timeIntervalBoardSwitch = 2000;         // time for boards to switch is 2 second;
+    themeValue = 1;                         // inital value for the UI theme to use
+    playAudio = true;                       // start game with sound on
 
     // start the game with on Player 1's Boat Board showing so they can pick their fleet
     document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
@@ -206,42 +222,48 @@ function init() {
     return;
 }
 
+// Plays sounds based on game events
+function playSound(action) {
+    if (action === AUDIO.GAME_START) {
+        AUDIO.GAME_START.play();
+    } else if (action === AUDIO.SPLASH) {
+        AUDIO.SPLASH.play();
+    } else if (action === AUDIO.EXPLOSION) {
+        AUDIO.EXPLOSION.play();
+    } else if (action === AUDIO.VICTORY) {
+        AUDIO.VICTORY.play();
+    } 
+    return;
+}
+
+// Toggles the games audio
+function handleMuteSound() {
+    playAudio = !playAudio;   // flips the value of playAudio
+    return;
+}
+
 // Changes the theme of the game
 function handleChangeTheme() {
     if (themeValue === 1) {
+        document.querySelector(":root").style.setProperty("--hud-image", "steelblue");
+        document.querySelector(":root").style.setProperty("--hit-count-background-color", "tomato");
+        document.querySelector(":root").style.setProperty("--hit-count-color", "black");
+        document.querySelector(":root").style.setProperty("--hit-count-border", "black");
         document.querySelector(":root").style.setProperty("--body-background", "white");
         document.querySelector(":root").style.setProperty("--rules-background", "beige");
-        document.querySelector(":root").style.setProperty("--rules-border", "black");
-        document.querySelector(":root").style.setProperty("--rules-color", "black");
-        document.querySelector(":root").style.setProperty("--header-color", "black");
-        document.querySelector(":root").style.setProperty("--game-log-border", "black");
-        document.querySelector(":root").style.setProperty("--game-log-background-color", "beige");
-        document.querySelector(":root").style.setProperty("--game-log-color", "black");
-        document.querySelector(":root").style.setProperty("--board-label-color", "black");
-        document.querySelector(":root").style.setProperty("--board-border", "black");
-        document.querySelector(":root").style.setProperty("--board-div-border", "rgb(173, 216, 230)");
-        document.querySelector(":root").style.setProperty("--square-hover-class-background-color", "green");
-        document.querySelector(":root").style.setProperty("--grid-coord-color", "white");
         document.querySelector(":root").style.setProperty("--buttons-border", "black");
         document.querySelector(":root").style.setProperty("--buttons-color", "black");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "tomato");
-        document.querySelector(":root").style.setProperty("--time-input-placehold-color", "dimgrey");
+        document.querySelector(":root").style.setProperty("--time-input-placehold-color", "darkslategrey");
         themeValue = 2;
         return;
     } else if (themeValue === 2) {
+        document.querySelector(":root").style.setProperty("--hud-image", "slategrey");
+        document.querySelector(":root").style.setProperty("--hit-count-background-color", "black");
+        document.querySelector(":root").style.setProperty("--hit-count-color", "white");
+        document.querySelector(":root").style.setProperty("--hit-count-border", "white");
         document.querySelector(":root").style.setProperty("--body-background", "radial-gradient(khaki, crimson)");
         document.querySelector(":root").style.setProperty("--rules-background", "white");
-        document.querySelector(":root").style.setProperty("--rules-border", "black");
-        document.querySelector(":root").style.setProperty("--rules-color", "black");
-        document.querySelector(":root").style.setProperty("--header-color", "black");
-        document.querySelector(":root").style.setProperty("--game-log-border", "black");
-        document.querySelector(":root").style.setProperty("--game-log-background-color", "beige");
-        document.querySelector(":root").style.setProperty("--game-log-color", "black");
-        document.querySelector(":root").style.setProperty("--board-label-color", "black");
-        document.querySelector(":root").style.setProperty("--board-border", "black");
-        document.querySelector(":root").style.setProperty("--board-div-border", "rgb(173, 216, 230)");
-        document.querySelector(":root").style.setProperty("--square-hover-class-background-color", "green");
-        document.querySelector(":root").style.setProperty("--grid-coord-color", "white");
         document.querySelector(":root").style.setProperty("--buttons-border", "white");
         document.querySelector(":root").style.setProperty("--buttons-color", "white");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "black");
@@ -309,7 +331,7 @@ function handleSquare(evt) {
     const boardId = evt.currentTarget.id;   // id of the board from the square clicked
     let square; let board;
     let col; let row;
-
+    
     // assign the board being used and the square clicked to saved variables
     if (boardId === "player1-boat-board") {
         square = p1bSquareEls.indexOf(evt.target);
@@ -411,10 +433,12 @@ function checkSquare(boardId, board, col, row) {
         board[col][row] = SQUARE_VALUE.MISS;
         moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed!`;
         turn *= -1;
+        if (playAudio) playSound(AUDIO.SPLASH);
     } else if (square === SQUARE_VALUE.MISS || square === SQUARE_VALUE.HIT) {
         moreLogInfo = "You've already guess here. Take a different shot.";
     } else if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.BOAT) {
         board[col][row] = SQUARE_VALUE.HIT;
+        if (playAudio) playSound(AUDIO.EXPLOSION);
         moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit!`;
         directHits[turn]++;
         turn *= -1;
@@ -510,6 +534,7 @@ function placeBoatSquare(boardId, board, col, row) {
         moreLogInfo = "Commence bombardment!";
         gameStart = true;
         undoBtn.style.visibility = "hidden";
+        if (playAudio) playSound(AUDIO.GAME_START);
     }
     return;
 }
@@ -573,6 +598,7 @@ function saveSelectedBoat(board) {
 function getWinner(turn) {
     if (directHits[turn] === TOTAL_HITS_TO_WIN) {
         winner = turn;
+        if (playAudio) playSound(AUDIO.VICTORY);
     }
     return;
 }
@@ -584,6 +610,7 @@ function render() {
     renderPlayer2BoatBoard();                     // updates player2's boat board
     renderPlayer2GuessBoard();                    // updates player2's boat board
     renderGameLog();                              // updates the game log to display gameplay moments
+    renderHitCount();                             // updates the hit count for each player
     if (gameStart) renderBoardVisibility();       // switches between the players' board's visibility
     return;
 }
@@ -673,6 +700,12 @@ function renderSquareColor(cellVal, coordsEl) {
             break;
     }
     return;
+}
+
+// Updates the hit count for each player
+function renderHitCount() {
+    p1HitCount.innerText = `${directHits[1]}/${TOTAL_HITS_TO_WIN}`;
+    p2HitCount.innerText = `${directHits[-1]}/${TOTAL_HITS_TO_WIN}`;
 }
 
 // Updates the game log to display winner and more game info

@@ -1,12 +1,18 @@
 :root {
+    --hud-image: slategrey;
+    --hud-border: black;
     --body-background: radial-gradient(khaki, crimson);
     --rules-background: white;
     --rules-border: black;
     --rules-color: black;
     --header-color: black;
+    --header-font-shadow: white;
     --game-log-border: black;
     --game-log-background-color: beige;
     --game-log-color: black;
+    --hit-count-background-color: black;
+    --hit-count-color: white;
+    --hit-count-border: white;
     --board-label-color: black;
     --board-image: url(/imgs/water.jpg);
     --board-border: black;
@@ -34,6 +40,23 @@ body {
     font-family: "Anta", sans-serif;
 }
 
+#upper-hud {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--hud-image);
+    width: 100vw;
+    top: 0;
+    position: absolute;
+    padding: 10px;
+    border: 2px solid var(--hud-border);
+}
+
+#space {
+    height: 10px;
+}
+
 #rules, 
 #boat-placement-instructions {
     min-width: 300px;
@@ -47,6 +70,7 @@ body {
     font-size: 10px;
     padding: 2px;
     color: var(--rules-color);
+    z-index: 99 !important;
 }
 
 #rules {
@@ -61,6 +85,31 @@ header {
     font-size: 7vmin;
     color: var(--header-color);
     letter-spacing: 2vmin;
+    margin-left: 1px;
+    text-shadow: -1px 1px 0 var(--header-font-shadow),
+                1px 1px 0 var(--header-font-shadow),
+                1px -1px 0 var(--header-font-shadow),
+                -1px -1px 0 var(--header-font-shadow);
+}
+
+#game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.hit-count {
+    font-size: 30px;
+    background-color: var(--hit-count-background-color);
+    color: var(--hit-count-color);
+    width: 90px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 10px;
+    border: 1.5px groove var(--hit-count-border);
 }
 
 #game-log {
@@ -75,11 +124,15 @@ header {
     min-width: 300px;
     max-width: 300px;
     color: var(--game-log-color);
+    margin-right: 70px;
+    margin-left: 70px;
 }
 
 #board-labels {
     display: flex;
     flex-direction: row;
+    margin-top: 45px;
+    margin-bottom: -40px;
 }
 
 .board-label {
@@ -134,20 +187,24 @@ header {
 #new-game-btn,
 #set-time, 
 #time-input, 
-#change-theme {
+#change-theme,
+#mute-btn {
     border: 1px solid var(--buttons-border);
     border-radius: 4px;
     margin-left: 5px;
     margin-right: 5px;
     color: var(--buttons-color);
     background-color: var(--buttons-background-color);
-    padding: 3px;
+    padding: 5px;
+    height: 25px;
+    font-size: 15px;
 }
 
 #show-hide-rules-btn:hover, 
 #new-game-btn:hover, 
 #undo-btn:hover,
-#change-theme:hover {
+#change-theme:hover,
+#mute-btn:hover {
     transform: scale(1.1);
     transition: transform 105ms case-in;
     cursor: pointer;
@@ -166,4 +223,16 @@ header {
 
 #time-input::placeholder {
     color: var(--time-input-placeholder-color);
+}
+
+#lower-hud {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--hud-image);
+    height: 80px;
+    width: 100vw;
+    bottom: 0;
+    position: absolute;
+    border: 2px solid var(--hud-border);
 }

@@ -7,5 +7,6 @@ This project was completed under the General Assembly - Software Engineer Immers
 Thursday, February 22nd: Wireframe and Pseudocode plan - 2 hours <br /> 
 Friday, February 23rd: First draft of HTML and CSS completed - 6 hours <br /> 
 Sunday, February 25th: Turns based-system of game completed - 7 hours <br /> 
-Monday, February 26nd: Quality of life features for turn-based system, code refactoring, and comments completed - 9 hours <br /> 
-Tuesday, February 22nd: Updated the UI to be more user friendly, smoothed out turn-based system, added color themes, and fixed minor bugs.  Game is operational and ready for presentation. - 9 hours <br />
+Monday, February 26th: Quality of life features for turn-based system, code refactoring, and comments. Project can be presented. - 9 hours <br /> 
+Tuesday, February 27th: Updated the UI to be more user friendly, smoothed out turn-based system, added color themes, and fixed minor bugs.  Game is operational and ready for presentation. - 9 hours <br />
+Wednesday, February 28th: 
