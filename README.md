@@ -16,7 +16,7 @@ A description of your game. Background info of the game is a nice touch.
 
 https://trello.com/b/yS9rAAh5/sebr-02-12-24
 
-[Click to Play Connect Four!](your deployment url here)
+https://nickldimartino.github.io/Battleship-Game/
 
 # Next Steps
 
@@ -35,4 +35,4 @@ Friday, February 23rd: First draft of HTML and CSS completed - 6 hours <br />
 Sunday, February 25th: Turns based-system of game completed - 7 hours <br /> 
 Monday, February 26th: Quality of life features for turn-based system, code refactoring, and comments. Project can be presented. - 9 hours <br /> 
 Tuesday, February 27th: Updated the UI to be more user friendly, smoothed out turn-based system, added color themes, and fixed minor bugs.  Game is operational and ready for presentation. - 9 hours <br />
-Wednesday, February 28th: 
+Wednesday, February 28th: Added audio to the game with a mute button and enhanced UI. - 3 hours
