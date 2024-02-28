@@ -14,7 +14,7 @@
     --hit-count-color: white;
     --hit-count-border: white;
     --board-label-color: black;
-    --board-image: url(../imgs/water.jpg);
+    --board-image: url(/imgs/water.jpg);
     --board-border: black;
     --board-div-border: rgb(173, 216, 230);
     --square-hover-class-background-color: green;
