@@ -18,4 +18,4 @@ https://nickldimartino.github.io/Battleship-Game/
 - Add a CPU player to replace Player 2
 
 # Other
-This game was completed in a five day timeline.
+This game was completed in a six day timeline.
