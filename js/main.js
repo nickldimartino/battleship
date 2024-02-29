@@ -252,12 +252,13 @@ function handleMuteSound() {
 // Changes the theme of the game by changing the variables in the style.css file
 function handleChangeTheme() {
     if (themeValue === THEME.CLASSIC) {
-        document.querySelector(":root").style.setProperty("--hud-image", "steelblue");
+        document.querySelector(":root").style.setProperty("--body-background", "white");
+        document.querySelector(":root").style.setProperty("--rules-background", "beige");
+        document.querySelector(":root").style.setProperty("--upper-hud-image", "steelblue");
         document.querySelector(":root").style.setProperty("--hit-count-background-color", "tomato");
         document.querySelector(":root").style.setProperty("--hit-count-color", "black");
         document.querySelector(":root").style.setProperty("--hit-count-border", "black");
-        document.querySelector(":root").style.setProperty("--body-background", "white");
-        document.querySelector(":root").style.setProperty("--rules-background", "beige");
+        document.querySelector(":root").style.setProperty("--lower-hud-image", "steelblue");
         document.querySelector(":root").style.setProperty("--buttons-border", "black");
         document.querySelector(":root").style.setProperty("--buttons-color", "black");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "tomato");
@@ -265,12 +266,13 @@ function handleChangeTheme() {
         themeValue = THEME.PRIMARY;
         return;
     } else if (themeValue === THEME.PRIMARY) {
-        document.querySelector(":root").style.setProperty("--hud-image", "slategrey");
+        document.querySelector(":root").style.setProperty("--body-background", "radial-gradient(khaki, crimson)");
+        document.querySelector(":root").style.setProperty("--rules-background", "white");
+        document.querySelector(":root").style.setProperty("--upper-hud-image", "linear-gradient(slategrey, darkgrey)");
         document.querySelector(":root").style.setProperty("--hit-count-background-color", "black");
         document.querySelector(":root").style.setProperty("--hit-count-color", "white");
         document.querySelector(":root").style.setProperty("--hit-count-border", "white");
-        document.querySelector(":root").style.setProperty("--body-background", "radial-gradient(khaki, crimson)");
-        document.querySelector(":root").style.setProperty("--rules-background", "white");
+        document.querySelector(":root").style.setProperty("--lower-hud-image", "linear-gradient(darkgrey, slategrey)");
         document.querySelector(":root").style.setProperty("--buttons-border", "white");
         document.querySelector(":root").style.setProperty("--buttons-color", "white");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "black");
