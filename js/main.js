@@ -32,6 +32,27 @@ const PLAYER_VALUE = {
     "-1": "Player 2"
 }
 
+// Number limits for grid squares
+const GRID_LIMITS = {
+    ZER0: 0,
+    TENS: 10,
+    TWENTIES: 20,
+    THIRTIES: 30,
+    FOURTIES: 40,
+    FIFTIES: 50,
+    SIXTIES: 60,
+    SEVENTIES: 70,
+    EIGHTIES: 80,
+    NINTIES: 90,
+    HUNDREDS: 100
+}
+
+// Theme Values
+const THEME ={
+    CLASSIC: 1,
+    PRIMARY: 2
+}
+
 // Audio sounds
 const AUDIO = {
     GAME_START: new Audio("./audio/game_start.m4a"),
@@ -41,7 +62,8 @@ const AUDIO = {
 }
 
 
-/*----- testing constants -----*/
+
+const MS_TO_SECOND = 1000;                // number of milliseconds in a second
 const TOTAL_HITS_TO_WIN = 17;             // sum of the amount of hits needed for all boats
 const TOTAL_NUM_BOATS = 5;                // total number of boats a player needs  
 
@@ -207,7 +229,7 @@ function init() {
     lastPlacedBoardId = null;               // the board has not been clicked yet
     undoBtn.style.visibility = "visible";   // should be visible on new game
     timeIntervalBoardSwitch = 2000;         // time for boards to switch is 2 second;
-    themeValue = 1;                         // inital value for the UI theme to use
+    themeValue = THEME.CLASSIC;             // inital value for the UI theme to use
     playAudio = true;                       // start game with sound on
 
     // start the game with on Player 1's Boat Board showing so they can pick their fleet
@@ -242,7 +264,7 @@ function handleMuteSound() {
 
 // Changes the theme of the game
 function handleChangeTheme() {
-    if (themeValue === 1) {
+    if (themeValue === THEME.CLASSIC) {
         document.querySelector(":root").style.setProperty("--hud-image", "steelblue");
         document.querySelector(":root").style.setProperty("--hit-count-background-color", "tomato");
         document.querySelector(":root").style.setProperty("--hit-count-color", "black");
@@ -253,9 +275,9 @@ function handleChangeTheme() {
         document.querySelector(":root").style.setProperty("--buttons-color", "black");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "tomato");
         document.querySelector(":root").style.setProperty("--time-input-placehold-color", "darkslategrey");
-        themeValue = 2;
+        themeValue = THEME.PRIMARY;
         return;
-    } else if (themeValue === 2) {
+    } else if (themeValue === THEME.PRIMARY) {
         document.querySelector(":root").style.setProperty("--hud-image", "slategrey");
         document.querySelector(":root").style.setProperty("--hit-count-background-color", "black");
         document.querySelector(":root").style.setProperty("--hit-count-color", "white");
@@ -266,7 +288,7 @@ function handleChangeTheme() {
         document.querySelector(":root").style.setProperty("--buttons-color", "white");
         document.querySelector(":root").style.setProperty("--buttons-background-color", "black");
         document.querySelector(":root").style.setProperty("--time-input-placeholder-color", "grey");
-        themeValue = 1;
+        themeValue = THEME.CLASSIC;
         return;
     }
 }
@@ -320,7 +342,7 @@ function handleShowHideGameRules() {
 
 function handleSetTime() {
     let inputTime = timeInputField.value;
-    timeIntervalBoardSwitch = inputTime * 1000;
+    timeIntervalBoardSwitch = inputTime * MS_TO_SECOND;
     return;
 }
 
@@ -350,43 +372,43 @@ function handleSquare(evt) {
     
     // determine the row and column numbers from the split square array
     // once the coordinates are determined, check the square to determine if it's a hit or miss
-    if (0 <= square && square < 10) {
+    if (GRID_LIMITS.ZERO <= square && square < GRID_LIMITS.TENS) {
         col = 0;
         row = parseInt(arr[0]);
         checkSquare(boardId, board, col, row);
-    } else if (10 <= square && square < 20) {
+    } else if (GRID_LIMITS.TENS <= square && square < GRID_LIMITS.TWENTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (20 <= square && square < 30) {
+    } else if (GRID_LIMITS.TWENTIES <= square && square < GRID_LIMITS.THIRTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (30 <= square && square < 40) {
+    } else if (GRID_LIMITS.THIRTIES <= square && square < GRID_LIMITS.FOURTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (40 <= square && square < 50) {
+    } else if (GRID_LIMITS.FOURTIES <= square && square < GRID_LIMITS.FIFTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (50 <= square && square < 60) {
+    } else if (GRID_LIMITS.FIFTIES <= square && square < GRID_LIMITS.SIXTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (60 <= square && square < 70) {
+    } else if (GRID_LIMITS.SIXTIES <= square && square < GRID_LIMITS.SEVENTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (70 <= square && square < 80) {
+    } else if (GRID_LIMITS.SEVENTIES <= square && square < GRID_LIMITS.EIGHTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (80 <= square && square < 90) {
+    } else if (GRID_LIMITS.EIGHTIES <= square && square < GRID_LIMITS.NINTIES) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
-    } else if (90 <= square && square < 100) {
+    } else if (GRID_LIMITS.NINTIES <= square && square < GRID_LIMITS.HUNDREDS) {
         col = parseInt(arr[0]);
         row = parseInt(arr[1]);
         checkSquare(boardId, board, col, row);
@@ -749,6 +771,8 @@ function renderBoardVisibility() {
     }
     return;
 }
+
+
 
 /* ------ CPU Player (In Progress: not implemented into above game) ------ */
 let cpuBoard1 = [
