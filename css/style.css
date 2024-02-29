@@ -1,3 +1,4 @@
+/* Color variables for the HTML element */
 :root {
     --hud-image: slategrey;
     --hud-border: black;
@@ -25,10 +26,13 @@
     --time-input-placeholder-color: grey;
 }
 
+/* Allows box sizing for the entire HTML page */
 * {
     box-sizing: border-box;
+    font-family: "Anta", sans-serif;
 }
 
+/* Main body of the page */
 body {
     height: 100vh;
     margin: 0;
@@ -37,26 +41,9 @@ body {
     justify-content: space-around;
     align-items: center;
     background: var(--body-background);
-    font-family: "Anta", sans-serif;
 }
 
-#upper-hud {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: var(--hud-image);
-    width: 100vw;
-    top: 0;
-    position: absolute;
-    padding: 10px;
-    border: 2px solid var(--hud-border);
-}
-
-#space {
-    height: 10px;
-}
-
+/* Boxes in the top right and left of the window displaying rules/instructions */
 #rules, 
 #boat-placement-instructions {
     min-width: 300px;
@@ -73,45 +60,43 @@ body {
     z-index: 99 !important;
 }
 
+/* The game rules should be in the top right */
 #rules {
     right: 0.2em;
 }
 
+/* The boat placement instructions should be in the top left */
 #boat-placement-instructions {
     left: 0.2em;
 }
 
+/* HUD on top of the page holding the header, game log, and player hit counts */
+#upper-hud {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--hud-image);
+    width: 100vw;
+    top: 0;
+    position: absolute;
+    padding: 10px;
+    border: 2px solid var(--hud-border);
+}
+
+/* The title "Battleship" */
 header {
     font-size: 7vmin;
     color: var(--header-color);
     letter-spacing: 2vmin;
     margin-left: 1px;
     text-shadow: -1px 1px 0 var(--header-font-shadow),
-                1px 1px 0 var(--header-font-shadow),
-                1px -1px 0 var(--header-font-shadow),
-                -1px -1px 0 var(--header-font-shadow);
+                 1px 1px 0 var(--header-font-shadow),
+                 1px -1px 0 var(--header-font-shadow),
+                 -1px -1px 0 var(--header-font-shadow);
 }
 
-#game-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
-.hit-count {
-    font-size: 30px;
-    background-color: var(--hit-count-background-color);
-    color: var(--hit-count-color);
-    width: 90px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    border-radius: 10px;
-    border: 1.5px groove var(--hit-count-border);
-}
-
+/* Box under the header displaying in-game moments and info */
 #game-log {
     display: flex;
     justify-content: center;
@@ -128,6 +113,29 @@ header {
     margin-left: 70px;
 }
 
+/* Words in the game info box should be centered in it */
+#game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+/* Hit count for each player to show who is winning */
+.hit-count {
+    font-size: 30px;
+    background-color: var(--hit-count-background-color);
+    color: var(--hit-count-color);
+    width: 90px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 10px;
+    border: 1.5px groove var(--hit-count-border);
+}
+
+/* Labels displayig the urpose of each board */
 #board-labels {
     display: flex;
     flex-direction: row;
@@ -135,17 +143,20 @@ header {
     margin-bottom: -40px;
 }
 
+/* Individual labels for each board */
 .board-label {
     margin-left: 64px;
     margin-right: 64px;
     color: var(--board-label-color);
 }
 
+/* Game boards display */
 #boards {
     display: flex;
     gap: 1vmin;
 }
 
+/* Creating a grid of squares in each board */
 .board {
     display: grid;
     grid-template-columns: repeat(10, 4.5vmin);
@@ -154,11 +165,13 @@ header {
     border: 4px solid var(--board-border);
 }
 
+/* Modifying each grid square in each board */
 .board > div {
     border: 1px solid var(--board-div-border);
     background-color: transparent;
 }
 
+/* Giving each grid square a hover property */
 .board > div:hover {
     transform: scale(1.1);
     transition: transform 105ms case-in;
@@ -166,22 +179,39 @@ header {
     cursor: pointer;
 }
 
-.SquareHoverClass:hover {
+/* A class given to each grid square when the new game button is clicked */
+.squareHoverClass:hover {
     background-color: var(--square-hover-class-background-color) !important; 
     transform: scale(1.1);
     transition: transform 105ms case-in;
     cursor: pointer;
 }
 
+/* Coordinate labels for the top row and left-most column grid squares */
 .grid-coord {
     color: var(--grid-coord-color);
     font-size: 10px;
 }
 
+/* The lower HUD on the bottom of the screen */
+#lower-hud {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--hud-image);
+    height: 80px;
+    width: 100vw;
+    bottom: 0;
+    position: absolute;
+    border: 2px solid var(--hud-border);
+}
+
+/* Buttons in the bottom HUD */
 #in-game-btns {
     display: flex;
 }
 
+/* Give each button in the bottom HUD similar styles */
 #show-hide-rules-btn, 
 #undo-btn, 
 #new-game-btn,
@@ -195,11 +225,11 @@ header {
     margin-right: 5px;
     color: var(--buttons-color);
     background-color: var(--buttons-background-color);
-    padding: 5px;
     height: 25px;
     font-size: 15px;
 }
 
+/* Give each button in the bottom HUD similar hover styles */
 #show-hide-rules-btn:hover, 
 #new-game-btn:hover, 
 #undo-btn:hover,
@@ -210,29 +240,14 @@ header {
     cursor: pointer;
 }
 
+/* The button to set the time is bigger so it's hover scale should be smaller */
 #set-time:hover {
     transform: scale(1.05);
     transition: transform 105ms case-in;
     cursor: pointer;
 }
 
-#arrow {
-    margin-left: -5px;
-    margin-right: -5px;
-}
-
+/* The color of the placeholder words in the input field */
 #time-input::placeholder {
     color: var(--time-input-placeholder-color);
-}
-
-#lower-hud {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: var(--hud-image);
-    height: 80px;
-    width: 100vw;
-    bottom: 0;
-    position: absolute;
-    border: 2px solid var(--hud-border);
 }
