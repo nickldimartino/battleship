@@ -104,8 +104,8 @@ header {
     text-align: center;
     border: 2px solid var(--game-log-border);
     background-color: var(--game-log-background-color);
-    min-height: 50px;
-    min-height: 50px;
+    min-height: 70px;
+    max-height: 70px;
     min-width: 300px;
     max-width: 300px;
     color: var(--game-log-color);
