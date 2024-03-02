@@ -48,8 +48,8 @@ const AUDIO = {
 
 const NUM_COLUMN_MAX = 10;              // max number of columns
 const MS_PER_SECOND = 1000;             // number of milliseconds in a second
-const TOTAL_HITS_TO_WIN = 17;           // sum of the amount of hits needed for all boats
-const TOTAL_NUM_BOATS = 5;              // total number of boats a player needs  
+const TOTAL_HITS_TO_WIN = 2;           // sum of the amount of hits needed for all boats
+const TOTAL_NUM_BOATS = 2;              // total number of boats a player needs  
 const INIT_BOARD_TIME = 2000;           // initial time to switch board (ms)
 
 
@@ -63,6 +63,8 @@ let player2GuessBoard;                  // player2 guesses and hits
 let player2BoatBoard;                   // player2 placed boats
 let player1NumBoats;                    // number of boats player1 has on the board
 let player2NumBoats;                    // number of boats player2 has on the board
+let cpuNumBoats;                        // number of boats computer player has on the board
+let cpuGuesses;                         // array of guess the computer player has taken
 let moreLogInfo;                        // more info to append to the game log if needed
 let lastPlacedBoard;                    // holds the last clicked board
 let lastPlacedBoatSquareCol;            // holds the last clicked board column
@@ -70,7 +72,7 @@ let lastPlacedBoatSquareRow;            // holds the last clicked board row
 let lastPlacedBoardId;                  // holds the last clicked board id
 let timeIntervalBoardSwitch             // holds the time interval for the switching boards when alternating turns
 let themeValue;                         // value for the game color theme (1 or 2)
-let playAudio;                          // holds sound playing boolean
+let playAudio;                          // holds sound playing boolean 
 let directHits = {                      // number of hits each player has taken
     "1": 0, 
     "-1": 0 
@@ -83,6 +85,13 @@ let p1BoatsPlaced = {                   // keeps track of the boats player 1 has
     "Patrol Boat": false,
 }
 let p2BoatsPlaced = {                   // keeps track of the boats player 2 has placed
+    "Aircraft Carrier": false,
+    "Battleship": false,
+    "Destroyer": false,
+    "Submarine": false,
+    "Patrol Boat": false,
+}   
+let cpuBoatsPlaced = {                  // keeps track of the boats the computer player has placed         
     "Aircraft Carrier": false,
     "Battleship": false,
     "Destroyer": false,
@@ -200,11 +209,20 @@ function init() {
         "Submarine": false,
         "Patrol Boat": false,
     }
+    cpuBoatsPlaced = {                   
+        "Aircraft Carrier": false,
+        "Battleship": false,
+        "Destroyer": false,
+        "Submarine": false,
+        "Patrol Boat": false,
+    }
 
     turn = 1;                                    // play starts with player1
     winner = null;                               // there is no winner on initialization
     player1NumBoats = 0;                         // player1 starts with 0 boats
     player2NumBoats = 0;                         // player2 starts with 0 boats
+    cpuNumBoats = 0;                             // computer player starts with 0 boats
+    cpuGuesses = [];                             // computer player hasn't taken any guesses 
     gameStart = false;                           // game has not started
     moreLogInfo = "";                            // there isn't any more info the tell the player
     directHits = { "1": 0, "-1": 0 };            // no hits have been made
@@ -446,10 +464,10 @@ function placeBoatSquare(boardId, board, col, row) {
 
     // count the number of adjacent boat squares in each direction
     let startCnt = square === SQUARE_VALUE.UNSAVED_BOAT ? 1 : 0;    // the starting square should be added if it's a boat
-    let upCnt = checkUpSquare(board, col, row);                     // count in the up direction 
-    let downCnt = checkDownSquare(board, col, row);                 // count in the down direction
-    let leftCnt = checkLeftSquare(board, col, row);                 // count in the left direction
-    let rightCnt = checkRightSquare(board, col, row);               // count in the right direction
+    let upCnt = checkUpSquare(board, col, row, SQUARE_VALUE.UNSAVED_BOAT);                     // count in the up direction 
+    let downCnt = checkDownSquare(board, col, row, SQUARE_VALUE.UNSAVED_BOAT);                 // count in the down direction
+    let leftCnt = checkLeftSquare(board, col, row, SQUARE_VALUE.UNSAVED_BOAT);                 // count in the left direction
+    let rightCnt = checkRightSquare(board, col, row, SQUARE_VALUE.UNSAVED_BOAT);               // count in the right direction
 
     // sum the vertical and horizontal counts
     let upDownCnt = upCnt + downCnt + startCnt;
@@ -516,27 +534,27 @@ function placeBoatSquare(boardId, board, col, row) {
 }
 
 // Checks the squares above the current square
-function checkUpSquare(board, col, row) {
-    return countAdjacent(board, col, row, -1, 0);
+function checkUpSquare(board, col, row, checkVal) {
+    return countAdjacent(board, col, row, -1, 0, checkVal);
 }
 
 // Checks the squares below the current square
-function checkDownSquare(board, col, row) {
-    return countAdjacent(board, col, row, +1, 0);
+function checkDownSquare(board, col, row, checkVal) {
+    return countAdjacent(board, col, row, +1, 0, checkVal);
 }
 
 // Checks the squares to the right of the current square
-function checkRightSquare(board, col, row) {
-    return countAdjacent(board, col, row, 0, +1);
+function checkRightSquare(board, col, row, checkVal) {
+    return countAdjacent(board, col, row, 0, +1, checkVal);
 }
 
 // Checks the squares to the left of the current square
-function checkLeftSquare(board, col, row) {
-    return countAdjacent(board, col, row, 0, -1);
+function checkLeftSquare(board, col, row, checkVal) {
+    return countAdjacent(board, col, row, 0, -1, checkVal);
 }
 
 // Counts the adjacent squares to to determine the length of the boat squares next to current square
-function countAdjacent(board, col, row, colOffset, rowOffset) {
+function countAdjacent(board, col, row, colOffset, rowOffset, checkVal) {
     const val = board[col][row];   // value in the current square
     let count = 0;                 // initiate a count
     col += colOffset;              // set the current square column position to the offset
@@ -548,7 +566,7 @@ function countAdjacent(board, col, row, colOffset, rowOffset) {
         board[col] !== undefined &&
         board[col][row] !== undefined &&
         board[col][row] === val &&
-        board[col][row] === SQUARE_VALUE.UNSAVED_BOAT
+        board[col][row] === checkVal
         ) {
             count++;
             col += colOffset;
@@ -741,6 +759,145 @@ function renderBoardVisibility() {
             document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
             document.getElementsByClassName("p1boards")[1].style.visibility = "visible";
         }, timeIntervalBoardSwitch);        
+    }
+    return;
+}
+
+
+// -----------------------------------------------------------------------------------------
+function generateCPUBoat() {
+    let col = Math.floor(Math.random() * 10);
+    let row = Math.floor(Math.random() * 10);
+    let boatLength = Math.floor(Math.random() * 4)+2;
+    let randomHorizontalVertical = Math.floor(Math.random() * 2);
+
+    let board = player1BoatBoard;
+
+    let upCnt = checkUpSquare(board, col, row, SQUARE_VALUE.EMPTY);                     // count in the up direction 
+    let downCnt = checkDownSquare(board, col, row, SQUARE_VALUE.EMPTY);                 // count in the down direction
+    let leftCnt = checkLeftSquare(board, col, row, SQUARE_VALUE.EMPTY);                 // count in the left direction
+    let rightCnt = checkRightSquare(board, col, row, SQUARE_VALUE.EMPTY);               // count in the right direction
+
+    if (randomHorizontalVertical === 1) {
+        if (upCnt >= boatLength) {
+            // console.log("v", "up:", upCnt)
+            if (checkCPUBoatPlaced(boatLength)) {
+                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "U");
+                return;
+            }
+        } else if (downCnt >= boatLength) {
+            // console.log("v", "down:", downCnt)
+            if (checkCPUBoatPlaced(boatLength)) {
+                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "D");
+                return;
+            }
+        } else {
+            return;
+        }
+    } else if (randomHorizontalVertical === 0) {
+        if (leftCnt >= boatLength ) {
+            // console.log("h", "left:", leftCnt)
+            if (checkCPUBoatPlaced(boatLength)) {
+                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "L");
+                return;
+            }
+        } else if (rightCnt >= boatLength) {
+            // console.log("h", "right:", rightCnt)
+            if (checkCPUBoatPlaced(boatLength)) {
+                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "R");
+                return;
+            }
+        } else {
+            return;
+        }
+    } else {
+        return;
+    }
+}
+
+function generateCPUBoard() {
+    while (cpuNumBoats < 5) {
+        generateCPUBoat();
+    }
+    let cpuHitCount = 0;
+    player1BoatBoard.forEach(x => {
+        x.forEach(i  => {
+            if (i === 3) {
+                cpuHitCount++;
+            }
+        });
+    });
+    console.log("hit count = " +cpuHitCount);
+    return;
+}
+
+function checkCPUBoatPlaced(boatLength) {
+    if (boatLength === 5 && !cpuBoatsPlaced["Aircraft Carrier"]) {
+        cpuBoatsPlaced["Aircraft Carrier"] = true;
+    } else if (boatLength === 4 && !cpuBoatsPlaced["Battleship"]) {
+        cpuBoatsPlaced["Battleship"] = true;
+    } else if (boatLength === 3 && !cpuBoatsPlaced["Destroyer"]) {
+        cpuBoatsPlaced["Destroyer"] = true;
+    } else if (boatLength === 3 && !cpuBoatsPlaced["Submarine"]) {
+        cpuBoatsPlaced["Submarine"] = true;
+    } else if (boatLength === 2 && !cpuBoatsPlaced["Patrol Boat"]) {
+        cpuBoatsPlaced["Patrol Boat"] = true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+function placeCPUBoat(boardId, pfx, col, row, boatLength, direction) {
+    if (direction === "U") {
+        let colIdx = col+1;
+        for (let i = 0; i < boatLength; i++) {
+            let coords = `${pfx}${COORDINATE_LOOKUP[colIdx]}${row+1}`;
+            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
+            player1BoatBoard[i][row] = SQUARE_VALUE.BOAT;
+            coordsEl.style.backgroundColor = "dimgrey";
+            colIdx--;
+        }
+    } else if (direction === "D") {
+        let colIdx = col+1;
+        for (let i = 0; i < boatLength; i++) {
+            let coords = `${pfx}${COORDINATE_LOOKUP[colIdx]}${row+1}`;
+            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
+            player1BoatBoard[i][row] = SQUARE_VALUE.BOAT;
+            coordsEl.style.backgroundColor = "dimgrey";
+            colIdx++;
+        }
+    } else if (direction === "L") {
+        let rowIdx = row+1;
+        for (let j = 0; j < boatLength; j++) {
+            let coords = `${pfx}${COORDINATE_LOOKUP[col+1]}${rowIdx}`;
+            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
+            player1BoatBoard[col][j] = SQUARE_VALUE.BOAT;
+            coordsEl.style.backgroundColor = "dimgrey";
+            rowIdx--;
+        }
+    } else if (direction === "R") {
+        let rowIdx = row+1;
+        for (let j = 0; j < boatLength; j++) {
+            let coords = `${pfx}${COORDINATE_LOOKUP[col+1]}${rowIdx}`;
+            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
+            player1BoatBoard[col][j] = SQUARE_VALUE.BOAT;
+            coordsEl.style.backgroundColor = "dimgrey";
+            rowIdx++;
+        }
+    }
+    cpuNumBoats++;
+    return;
+}
+
+function generateCPUGuess() {
+    let col = Math.floor(Math.random() * 10);
+    let row = Math.floor(Math.random() * 10);
+    
+    let guess = `${COORDINATE_LOOKUP[col+1]}${row+1}`;
+
+    if (!cpuGuesses.includes(guess)) {
+        cpuGuesses.push(guess);
     }
     return;
 }
