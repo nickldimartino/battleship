@@ -46,10 +46,19 @@ const AUDIO = {
     VICTORY: new Audio("./audio/victory.m4a")
 }
 
+// Directions for the Computer player boat placement
+const DIRECTION = {
+    UP: 1,
+    DOWN: 2,
+    LEFT: 3,
+    RIGHT: 4
+}
+
 const NUM_COLUMN_MAX = 10;              // max number of columns
+const NUM_ROW_MAX = 10;                 // max number of rows
 const MS_PER_SECOND = 1000;             // number of milliseconds in a second
-const TOTAL_HITS_TO_WIN = 2;           // sum of the amount of hits needed for all boats
-const TOTAL_NUM_BOATS = 2;              // total number of boats a player needs  
+const TOTAL_HITS_TO_WIN = 17;           // sum of the amount of hits needed for all boats
+const TOTAL_NUM_BOATS = 5;              // total number of boats a player needs  
 const INIT_BOARD_TIME = 2000;           // initial time to switch board (ms)
 
 
@@ -65,6 +74,8 @@ let player1NumBoats;                    // number of boats player1 has on the bo
 let player2NumBoats;                    // number of boats player2 has on the board
 let cpuNumBoats;                        // number of boats computer player has on the board
 let cpuGuesses;                         // array of guess the computer player has taken
+let computerPlayer;                     // flag to set a computer player
+let cpuHitCount;                        // number of hits Player 1 needs against the computer player
 let moreLogInfo;                        // more info to append to the game log if needed
 let lastPlacedBoard;                    // holds the last clicked board
 let lastPlacedBoatSquareCol;            // holds the last clicked board column
@@ -112,6 +123,7 @@ const setTimeBtn = document.getElementById("set-time");                         
 const timeInputField = document.getElementById("time-input");                                // input field for a user given time
 const muteBtn = document.getElementById("mute-btn");                                         // mutes audio for the game
 const undoBtn = document.getElementById("undo-btn");                                         // button to remove the last boat square a player places
+const computerPlayerBtn = document.getElementById("computer-player-btn");                    // button to choose if a computer player is wanted
 const p1bSquareEls = [...document.querySelectorAll("#player1-boat-board > div")];            // squares in the P1 Boat Board
 const p1gSquareEls = [...document.querySelectorAll("#player1-guess-board > div")];           // squares in the P1 Guess Board
 const p2gSquareEls = [...document.querySelectorAll("#player2-guess-board > div")];           // squares in the P2 Guess Board
@@ -124,6 +136,7 @@ newGameBtn.addEventListener("click", init);                                     
 setTimeBtn.addEventListener("click", handleSetTime);                                                   // listens for click on set time button
 undoBtn.addEventListener("click", handleUndo);                                                         // listens for click on undo button
 muteBtn.addEventListener("click", handleMuteSound);                                                    // listens for click on mute sound button
+computerPlayerBtn.addEventListener("click", handleComputerPlayerBtn);                                  // listens for click on computer player button
 document.getElementById("show-hide-rules-btn").addEventListener("click", handleShowHideGameRules);     // listens for click on show/hide rules button
 document.getElementById("player1-boat-board").addEventListener("click", handleSquare);                 // listens for click on P1 Boat Board button
 document.getElementById("player1-guess-board").addEventListener("click", handleSquare);                // listens for click on P1 Guess Board button
@@ -137,7 +150,7 @@ init();
 
 // Starts the game by initializing the state variables
 function init() {
-    // game boards for both players set to empty. They are same orientation as seen on screen
+    // game boards for both players set to empty.  The Player 2 boards can also act as the Computer player boards
     player1BoatBoard = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -209,7 +222,7 @@ function init() {
         "Submarine": false,
         "Patrol Boat": false,
     }
-    cpuBoatsPlaced = {                   
+    cpuBoatsPlaced = {       
         "Aircraft Carrier": false,
         "Battleship": false,
         "Destroyer": false,
@@ -217,25 +230,28 @@ function init() {
         "Patrol Boat": false,
     }
 
-    turn = 1;                                    // play starts with player1
-    winner = null;                               // there is no winner on initialization
-    player1NumBoats = 0;                         // player1 starts with 0 boats
-    player2NumBoats = 0;                         // player2 starts with 0 boats
-    cpuNumBoats = 0;                             // computer player starts with 0 boats
-    cpuGuesses = [];                             // computer player hasn't taken any guesses 
-    gameStart = false;                           // game has not started
-    moreLogInfo = "";                            // there isn't any more info the tell the player
-    directHits = { "1": 0, "-1": 0 };            // no hits have been made
-    gameRulesShowing = true;                     // game rules should be visible on game start
-    lastPlacedBoard = null;                      // a board has not been clicked yet
-    lastPlacedBoardId = null;                    // a board has not been clicked yet
-    lastPlacedBoatSquareCol = null;              // a board square has not been clicked yet
-    lastPlacedBoatSquareRow = null;              // a board square has not been clicked yet
-    undoBtn.style.visibility = "visible";        // should be visible on new game
-    timeIntervalBoardSwitch = INIT_BOARD_TIME;   // time interval for boards to switch is 2 seconds
-    themeValue = THEME.CLASSIC;                  // inital value for the UI theme to use
-    playAudio = true;                            // start game with sound on
-    timeInputField.value = "";                   // input field for the time interval should start empty
+    turn = 1;                                         // play starts with player1
+    winner = null;                                    // there is no winner on initialization
+    player1NumBoats = 0;                              // player1 starts with 0 boats
+    player2NumBoats = 0;                              // player2 starts with 0 boats
+    cpuNumBoats = 0;                                  // computer player starts with 0 boats
+    cpuGuesses = [];                                  // computer player hasn't taken any guesses 
+    computerPlayer = false;                           // game starts off using teo players
+    cpuHitCount = 0;                                  // number of hits needed for Player 1 against the computer player starts at 0 
+    gameStart = false;                                // game has not started
+    moreLogInfo = "";                                 // there isn't any more info the tell the player
+    directHits = { "1": 0, "-1": 0 };                 // no hits have been made
+    gameRulesShowing = true;                          // game rules should be visible on game start
+    lastPlacedBoard = null;                           // a board has not been clicked yet
+    lastPlacedBoardId = null;                         // a board has not been clicked yet
+    lastPlacedBoatSquareCol = null;                   // a board square has not been clicked yet
+    lastPlacedBoatSquareRow = null;                   // a board square has not been clicked yet
+    undoBtn.style.visibility = "visible";             // should be visible on new game
+    computerPlayerBtn.style.visibility = "visible";   // should be visible on new game
+    timeIntervalBoardSwitch = INIT_BOARD_TIME;        // time interval for boards to switch is 2 seconds
+    themeValue = THEME.CLASSIC;                       // inital value for the UI theme to use
+    playAudio = true;                                 // start game with sound on
+    timeInputField.value = "";                        // input field for the time interval should start empty
 
     // start the game with on Player 1's Boat Board showing so they can pick their fleet
     document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
@@ -261,9 +277,14 @@ function playSound(action) {
     return;
 }
 
-// Toggles the games audio
-function handleMuteSound() {
-    playAudio = !playAudio;   // flips the value of playAudio
+// Changes the game to use a computer player instead of a Player 2
+function handleComputerPlayerBtn() {
+    computerPlayer = true;                                        // set Computer player to true
+    computerPlayerBtn.style.visibility = "hidden";                // hide the Computer player button so it can't be clicked again
+    messageEl.innerText = "A computer player has been chosen!";   // display a message to show a Computer player was chosen
+
+    generateComputerBoard();                                           // generates a board for the Computer player
+    renderPlayer2BoatBoard();                                     // renders the Player 2 Boat Board for the Computer player 
     return;
 }
 
@@ -300,26 +321,6 @@ function handleChangeTheme() {
     }
 }
 
-// Removes the last placed boat square
-function handleUndo() {
-    // if the last square clicked was already locked into a boat, then notify the player it can't be undone
-    if (lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] === SQUARE_VALUE.BOAT) {
-        messageEl.innerText = "You can't undo a ship once it's been locked in place";
-        return;
-    }
-
-    // sets the plast placed boat square value to 0 to mark as "empty"
-    lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] = SQUARE_VALUE.EMPTY;
-    
-    // get the html element of the last clicked square
-    let element = getBoardSquare(lastPlacedBoardId, lastPlacedBoatSquareCol, lastPlacedBoatSquareRow);
-
-    // remove the grey color that designates a placed boat square
-    element.style.backgroundColor = 'transparent';
-
-    return;
-}
-
 // Toggle the view of the Game Rules and Instructions boxes
 function handleShowHideGameRules() {
     if (gameRulesShowing) {
@@ -341,12 +342,43 @@ function handleSetTime() {
     return;
 }
 
+// Toggles the games audio
+function handleMuteSound() {
+    playAudio = !playAudio;   // flips the value of playAudio
+    return;
+}
+
+// Removes the last placed boat square
+function handleUndo() {
+    // if the last square clicked was already locked into a boat, then notify the player it can't be undone
+    if (lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] === SQUARE_VALUE.BOAT) {
+        messageEl.innerText = "You can't undo a ship once it's been locked in place";
+        return;
+    }
+
+    // sets the plast placed boat square value to 0 to mark as "empty"
+    lastPlacedBoard[lastPlacedBoatSquareCol][lastPlacedBoatSquareRow] = SQUARE_VALUE.EMPTY;
+    
+    // get the html element of the last clicked square
+    let element = getBoardSquare(lastPlacedBoardId, lastPlacedBoatSquareCol, lastPlacedBoatSquareRow);
+
+    // remove the grey color that designates a placed boat square
+    element.style.backgroundColor = 'transparent';
+
+    return;
+}
+
 // Click event handler for the squares on each board
 function handleSquare(evt) {
     const boardId = evt.currentTarget.id;   // id of the board from the square clicked
     let square; let board;
     let col; let row;
-    
+
+    if (gameStart && (boardId === "player1-boat-board"  || boardId === "player2-boat-board")) {
+        messageEl.innerText = "You must click your Guess board";
+        return;
+    }
+
     // assign the board being used and the square clicked to saved variables
     if (boardId === "player1-boat-board") {
         square = p1bSquareEls.indexOf(evt.target);
@@ -433,15 +465,47 @@ function checkSquare(boardId, board, col, row) {
     // else if the square is a boat, notify the player of a boat hit and switch turns
     if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.EMPTY) {
         board[col][row] = SQUARE_VALUE.MISS;
-        moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed!`;
+
+        // change the game log based on if a Computer player is playing or two players
+        if (computerPlayer && turn === -1) {
+            moreLogInfo = "The Computer's shot missed!";
+        } else {
+            moreLogInfo = `${PLAYER_VALUE[turn]}'s shot missed!`;
+        }
+        
+        // play audio on each turn unless the Computer player is playing then only play audio for Player 1
+        if (playAudio && !computerPlayer) {
+            playSound(AUDIO.SPLASH);
+        } else if (playAudio && computerPlayer) {
+            if (turn === 1) {
+                playSound(AUDIO.SPLASH);
+            }
+        }  
+
+        // change the turn to alternate who's turn it is to guess
         turn *= -1;
-        if (playAudio) playSound(AUDIO.SPLASH);
     } else if (square === SQUARE_VALUE.MISS || square === SQUARE_VALUE.HIT) {
         moreLogInfo = `You've already guessed that square! Take a different shot.`;
     } else if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.BOAT) {
         board[col][row] = SQUARE_VALUE.HIT;
-        if (playAudio) playSound(AUDIO.EXPLOSION);
-        moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit!`;
+
+        // play audio on each turn unless the Computer player is playing then only play audio for Player 1
+        if (playAudio && !computerPlayer) {
+            playSound(AUDIO.EXPLOSION);
+        } else if (playAudio && computerPlayer) {
+            if (turn === 1) {
+                playSound(AUDIO.EXPLOSION);
+            }
+        } 
+
+        // change the game log based on if a Computer player is playing or two players
+        if (computerPlayer && turn === -1) {
+            moreLogInfo = "The Computer had a direct hit!";
+        } else {
+            moreLogInfo = `${PLAYER_VALUE[turn]} had a direct hit!`;
+        }
+
+        // increase the hit count of the current plaer and change the turn to alternate who's turn it is to guess
         directHits[turn]++;
         turn *= -1;
     }
@@ -449,6 +513,16 @@ function checkSquare(boardId, board, col, row) {
     // check if the most recent turn was the final hit to find a winner
     let lastTurn = turn * -1;
     getWinner(lastTurn);
+
+    // if the Computer player is the next player to guess, generate a guess, extract the info from that guess, and check the guessed square
+    if (turn === -1 && computerPlayer) {
+        let newCPUGuess = generateComputerGuess();
+        let boardId = newCPUGuess[0];
+        let board = newCPUGuess[1];
+        let col = newCPUGuess[2];
+        let row = newCPUGuess[3];
+        checkSquare(boardId, board, col, row);
+    }
     return;
 }
 
@@ -514,9 +588,7 @@ function placeBoatSquare(boardId, board, col, row) {
     saveSelectedBoat(boardId, board, col, row, upDownCnt, leftRightCnt);
     
     // flip the board visibility if Player 1 has already completed their fleet layout
-    let player1BoatsSet = false;
-    if (player1NumBoats === TOTAL_NUM_BOATS && !player1BoatsSet) {
-        player1BoatsSet = true;
+    if (player1NumBoats === TOTAL_NUM_BOATS && !computerPlayer) {
         document.getElementsByClassName("p1boards")[0].style.visibility = "hidden";
         document.getElementsByClassName("p1boards")[1].style.visibility = "hidden";
         document.getElementsByClassName("p2boards")[0].style.visibility = "hidden";
@@ -524,11 +596,17 @@ function placeBoatSquare(boardId, board, col, row) {
     }
 
     // once both players choose their fleet layouts, the game can begin
-    if (player1NumBoats === TOTAL_NUM_BOATS && player2NumBoats === TOTAL_NUM_BOATS) {
+    if (player1NumBoats === TOTAL_NUM_BOATS && (player2NumBoats === TOTAL_NUM_BOATS || cpuNumBoats === TOTAL_NUM_BOATS)) {
         moreLogInfo = "Commence bombardment!";
         gameStart = true;
         undoBtn.style.visibility = "hidden";
         if (playAudio) playSound(AUDIO.GAME_START);
+        computerPlayerBtn.style.visibility = "hidden";
+        if (computerPlayer) {
+            document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
+            document.getElementsByClassName("p1boards")[1].style.visibility = "visible";
+            document.getElementsByClassName("p2boards")[0].style.visibility = "visible";
+        }
     }
     return;
 }
@@ -610,15 +688,134 @@ function getWinner(turn) {
     return;
 }
 
+// Generate a boat board for the Computer player based on the total number of boats required
+function generateComputerBoard() {
+    while (cpuNumBoats < TOTAL_NUM_BOATS) {
+        generateComputerBoat();
+    }
+    return;
+}
+
+// Generate a boat and the starting grid square to place
+function generateComputerBoat() {
+    let col = Math.floor(Math.random() * 10);                                          // random column number
+    let row = Math.floor(Math.random() * 10);                                          // random row number
+    let boatLength = Math.floor(Math.random() * 4)+2;                                  // random boat length
+    let randomHorizontalVertical = Math.floor(Math.random() * 2);                      // random boat placement direction 
+
+    let upCnt = checkUpSquare(player2BoatBoard, col, row, SQUARE_VALUE.EMPTY);         // open space in the up direction 
+    let downCnt = checkDownSquare(player2BoatBoard, col, row, SQUARE_VALUE.EMPTY);     // open space in the down direction
+    let leftCnt = checkLeftSquare(player2BoatBoard, col, row, SQUARE_VALUE.EMPTY);     // open space in the left direction
+    let rightCnt = checkRightSquare(player2BoatBoard, col, row, SQUARE_VALUE.EMPTY);   // open space in the right direction
+
+    // Based on if the boat will be vertical or horizontal, check if there's open squares in that direction
+    // if so, place the boat
+    // else, there is no room at the generated square so a boat won't be placed
+    if (randomHorizontalVertical === 1) {
+        if (upCnt >= boatLength) {
+            if (checkComputerBoatPlaced(boatLength)) {
+                placeComputerBoat(col, row, boatLength, DIRECTION.UP);
+                return;
+            }
+        } else if (downCnt >= boatLength) {
+            if (checkComputerBoatPlaced(boatLength)) {
+                placeComputerBoat(col, row, boatLength, DIRECTION.DOWN);
+                return;
+            }
+        } else {
+            return;
+        }
+    } else if (randomHorizontalVertical === 0) {
+        if (leftCnt >= boatLength ) {
+            if (checkComputerBoatPlaced(boatLength)) {
+                placeComputerBoat(col, row, boatLength, DIRECTION.LEFT);
+                return;
+            }
+        } else if (rightCnt >= boatLength) {
+            if (checkComputerBoatPlaced(boatLength)) {
+                placeComputerBoat(col, row, boatLength, DIRECTION.RIGHT);
+                return;
+            }
+        } else {
+            return;
+        }
+    } else {
+        return;
+    }
+}
+
+// Determine if the boat length generated is a valid length and the respective boat has not been placed on the board yet
+function checkComputerBoatPlaced(boatLength) {
+    if (boatLength === BOAT_SIZES["Aircraft Carrier"] && !cpuBoatsPlaced["Aircraft Carrier"]) {
+        cpuBoatsPlaced["Aircraft Carrier"] = true;
+    } else if (boatLength === BOAT_SIZES["Battleship"] && !cpuBoatsPlaced["Battleship"]) {
+        cpuBoatsPlaced["Battleship"] = true;
+    } else if (boatLength === BOAT_SIZES["Destroyer"] && !cpuBoatsPlaced["Destroyer"]) {
+        cpuBoatsPlaced["Destroyer"] = true;
+    } else if (boatLength === BOAT_SIZES["Submarine"] && !cpuBoatsPlaced["Submarine"]) {
+        cpuBoatsPlaced["Submarine"] = true;
+    } else if (boatLength === BOAT_SIZES["Patrol Boat"] && !cpuBoatsPlaced["Patrol Boat"]) {
+        cpuBoatsPlaced["Patrol Boat"] = true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+// Place the given boat in the given direction starting at the given square
+function placeComputerBoat(col, row, boatLength, direction) {
+    let colIdx = col+1; 
+    let rowIdx = row+1;
+
+    // Based on the given direction, change the values of the grid squares to represent a boat
+    if (direction === DIRECTION.UP) {
+        for (let i = 0; i < boatLength; i++) {
+            player2BoatBoard[i][row] = SQUARE_VALUE.BOAT;
+            colIdx--;
+        }
+    } else if (direction === DIRECTION.DOWN) {
+        for (let i = 0; i < boatLength; i++) {
+            player2BoatBoard[i][row] = SQUARE_VALUE.BOAT;
+            colIdx++;
+        }
+    } else if (direction === DIRECTION.LEFT) {
+        for (let i = 0; i < boatLength; i++) {
+            player2BoatBoard[col][i] = SQUARE_VALUE.BOAT;
+            rowIdx--;
+        }
+    } else if (direction === DIRECTION.RIGHT) {
+        for (let i = 0; i < boatLength; i++) {
+            player2BoatBoard[col][i] = SQUARE_VALUE.BOAT;
+            rowIdx++;
+        }
+    }
+    cpuNumBoats++;
+    return;
+}
+
+// Generate a random guess for the Computer player
+function generateComputerGuess() {
+    let col = Math.floor(Math.random() * NUM_COLUMN_MAX);   // random column number
+    let row = Math.floor(Math.random() * NUM_ROW_MAX);      // random row number 
+    let guess = col + row;                                  // combine the columna and row into a string
+
+    // keep track of the guess the computer has made so far
+    if (!cpuGuesses.includes(guess)) {
+        cpuGuesses.push(guess);
+    }
+
+    return ["player2-guess-board", player2GuessBoard, col, row];
+}
+
 // Updates the UI with changes throughout gameplay
 function render() {
-    renderPlayer1BoatBoard();                     // updates player1's boat board UI
-    renderPlayer1GuessBoard();                    // updates player1's guess board UI
-    renderPlayer2GuessBoard();                    // updates player2's guess board UI
-    renderPlayer2BoatBoard();                     // updates player2's boat board UI
-    renderGameLog();                              // updates the game log to display gameplay moments
-    renderHitCount();                             // updates the hit count for each player
-    if (gameStart) renderBoardVisibility();       // switches between the players' board's visibility
+    renderPlayer1BoatBoard();                                    // updates player1's boat board UI
+    renderPlayer1GuessBoard();                                   // updates player1's guess board UI
+    renderPlayer2GuessBoard();                                   // updates player2's guess board UI
+    renderPlayer2BoatBoard();                                    // updates player2's boat board UI
+    renderGameLog();                                             // updates the game log to display gameplay moments
+    renderHitCount();                                            // updates the hit count for each player
+    if (gameStart && !computerPlayer) renderBoardVisibility();   // switches between the players' board's visibility
     return;
 }
 
@@ -722,7 +919,12 @@ function renderGameLog() {
     // else display the current turn and other info
     if (winner !== null) {
         let opponent = winner * -1;
-        messageEl.innerHTML = `${PLAYER_VALUE[opponent]}'s fleet has been sunk!<br>${PLAYER_VALUE[winner]} wins!`;
+
+        if (computerPlayer && winner === -1) {
+            messageEl.innerHTML = `Player 1's fleet has been sunk!<br>The Computer wins!`;
+        } else {
+            messageEl.innerHTML = `The Computer's fleet has been sunk!<br>Player 1 wins!`;
+        }
         gameStart = false;
 
         // show all the game boards
@@ -732,6 +934,8 @@ function renderGameLog() {
         document.getElementsByClassName("p1boards")[1].style.visibility = "visible";
     } else if (!gameStart) {
         messageEl.innerText = "Create your fleet layout!";
+    } else if (computerPlayer && turn === -1) {
+        messageEl.innerHTML = `${moreLogInfo}<br>It's the Computer's turn`;
     } else {
         messageEl.innerHTML = `${moreLogInfo}<br>${PLAYER_VALUE[turn]}'s turn`;
     }
@@ -759,145 +963,6 @@ function renderBoardVisibility() {
             document.getElementsByClassName("p1boards")[0].style.visibility = "visible";
             document.getElementsByClassName("p1boards")[1].style.visibility = "visible";
         }, timeIntervalBoardSwitch);        
-    }
-    return;
-}
-
-
-// -----------------------------------------------------------------------------------------
-function generateCPUBoat() {
-    let col = Math.floor(Math.random() * 10);
-    let row = Math.floor(Math.random() * 10);
-    let boatLength = Math.floor(Math.random() * 4)+2;
-    let randomHorizontalVertical = Math.floor(Math.random() * 2);
-
-    let board = player1BoatBoard;
-
-    let upCnt = checkUpSquare(board, col, row, SQUARE_VALUE.EMPTY);                     // count in the up direction 
-    let downCnt = checkDownSquare(board, col, row, SQUARE_VALUE.EMPTY);                 // count in the down direction
-    let leftCnt = checkLeftSquare(board, col, row, SQUARE_VALUE.EMPTY);                 // count in the left direction
-    let rightCnt = checkRightSquare(board, col, row, SQUARE_VALUE.EMPTY);               // count in the right direction
-
-    if (randomHorizontalVertical === 1) {
-        if (upCnt >= boatLength) {
-            // console.log("v", "up:", upCnt)
-            if (checkCPUBoatPlaced(boatLength)) {
-                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "U");
-                return;
-            }
-        } else if (downCnt >= boatLength) {
-            // console.log("v", "down:", downCnt)
-            if (checkCPUBoatPlaced(boatLength)) {
-                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "D");
-                return;
-            }
-        } else {
-            return;
-        }
-    } else if (randomHorizontalVertical === 0) {
-        if (leftCnt >= boatLength ) {
-            // console.log("h", "left:", leftCnt)
-            if (checkCPUBoatPlaced(boatLength)) {
-                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "L");
-                return;
-            }
-        } else if (rightCnt >= boatLength) {
-            // console.log("h", "right:", rightCnt)
-            if (checkCPUBoatPlaced(boatLength)) {
-                placeCPUBoat("player1-boat-board", "p1b-", col, row, boatLength, "R");
-                return;
-            }
-        } else {
-            return;
-        }
-    } else {
-        return;
-    }
-}
-
-function generateCPUBoard() {
-    while (cpuNumBoats < 5) {
-        generateCPUBoat();
-    }
-    let cpuHitCount = 0;
-    player1BoatBoard.forEach(x => {
-        x.forEach(i  => {
-            if (i === 3) {
-                cpuHitCount++;
-            }
-        });
-    });
-    console.log("hit count = " +cpuHitCount);
-    return;
-}
-
-function checkCPUBoatPlaced(boatLength) {
-    if (boatLength === 5 && !cpuBoatsPlaced["Aircraft Carrier"]) {
-        cpuBoatsPlaced["Aircraft Carrier"] = true;
-    } else if (boatLength === 4 && !cpuBoatsPlaced["Battleship"]) {
-        cpuBoatsPlaced["Battleship"] = true;
-    } else if (boatLength === 3 && !cpuBoatsPlaced["Destroyer"]) {
-        cpuBoatsPlaced["Destroyer"] = true;
-    } else if (boatLength === 3 && !cpuBoatsPlaced["Submarine"]) {
-        cpuBoatsPlaced["Submarine"] = true;
-    } else if (boatLength === 2 && !cpuBoatsPlaced["Patrol Boat"]) {
-        cpuBoatsPlaced["Patrol Boat"] = true;
-    } else {
-        return false;
-    }
-    return true;
-}
-
-function placeCPUBoat(boardId, pfx, col, row, boatLength, direction) {
-    if (direction === "U") {
-        let colIdx = col+1;
-        for (let i = 0; i < boatLength; i++) {
-            let coords = `${pfx}${COORDINATE_LOOKUP[colIdx]}${row+1}`;
-            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
-            player1BoatBoard[i][row] = SQUARE_VALUE.BOAT;
-            coordsEl.style.backgroundColor = "dimgrey";
-            colIdx--;
-        }
-    } else if (direction === "D") {
-        let colIdx = col+1;
-        for (let i = 0; i < boatLength; i++) {
-            let coords = `${pfx}${COORDINATE_LOOKUP[colIdx]}${row+1}`;
-            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
-            player1BoatBoard[i][row] = SQUARE_VALUE.BOAT;
-            coordsEl.style.backgroundColor = "dimgrey";
-            colIdx++;
-        }
-    } else if (direction === "L") {
-        let rowIdx = row+1;
-        for (let j = 0; j < boatLength; j++) {
-            let coords = `${pfx}${COORDINATE_LOOKUP[col+1]}${rowIdx}`;
-            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
-            player1BoatBoard[col][j] = SQUARE_VALUE.BOAT;
-            coordsEl.style.backgroundColor = "dimgrey";
-            rowIdx--;
-        }
-    } else if (direction === "R") {
-        let rowIdx = row+1;
-        for (let j = 0; j < boatLength; j++) {
-            let coords = `${pfx}${COORDINATE_LOOKUP[col+1]}${rowIdx}`;
-            let coordsEl = document.querySelector(`#${boardId} > #${coords}`);
-            player1BoatBoard[col][j] = SQUARE_VALUE.BOAT;
-            coordsEl.style.backgroundColor = "dimgrey";
-            rowIdx++;
-        }
-    }
-    cpuNumBoats++;
-    return;
-}
-
-function generateCPUGuess() {
-    let col = Math.floor(Math.random() * 10);
-    let row = Math.floor(Math.random() * 10);
-    
-    let guess = `${COORDINATE_LOOKUP[col+1]}${row+1}`;
-
-    if (!cpuGuesses.includes(guess)) {
-        cpuGuesses.push(guess);
     }
     return;
 }

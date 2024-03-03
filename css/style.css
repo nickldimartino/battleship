@@ -219,7 +219,8 @@ header {
 #set-time, 
 #time-input, 
 #change-theme,
-#mute-btn {
+#mute-btn,
+#computer-player-btn {
     border: 1px solid var(--buttons-border);
     border-radius: 4px;
     margin-left: 5px;
@@ -235,7 +236,8 @@ header {
 #new-game-btn:hover, 
 #undo-btn:hover,
 #change-theme:hover,
-#mute-btn:hover {
+#mute-btn:hover,
+#computer-player-btn:hover {
     transform: scale(1.1);
     transition: transform 105ms case-in;
     cursor: pointer;
