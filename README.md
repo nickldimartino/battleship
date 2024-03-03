@@ -1,5 +1,5 @@
 # Battleship Game
-This is the game of Battleship! It functions the same way as the traditional game.  Each player must choose the layout of their fleet of five boats: Aircraft Carrier, Battleship, Destroyer, Submarine and Patrol Boat.  Once each player has chosen their layout, the game begins!  Players alternate guesses to find their opponet's boats.  The first player to sink all five of their opponet's ships wins!
+This is the game of Battleship! It functions the same way as the traditional game.  First, choose if you'd like to play against the computer. Each player(s) must choose the layout of their fleet of five boats: Aircraft Carrier, Battleship, Destroyer, Submarine and Patrol Boat.  Once each player(s) has chosen their layout, the game begins!  Players alternate guesses to find their opponet's boats.  The first player to sink all five of their opponet's ships wins!
 
 # Screenshot
 
@@ -20,7 +20,5 @@ https://nickldimartino.github.io/Battleship-Game/
 
 # Next Steps
 
-- Add a CPU player to replace Player 2
-
-# Other
-This game was completed in a six day timeline.
+- Find and fix possible bugs and edge cases.
+- Refactor code.
