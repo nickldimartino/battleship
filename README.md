@@ -14,11 +14,14 @@ This is the game of Battleship! It functions the same way as the traditional gam
 
 # Getting Started
 
+Link to the class timeline in which this project was created (Week 2-3):
 https://trello.com/b/yS9rAAh5/sebr-02-12-24
 
+Link to the GitHub Pages site where the game can be played.
 https://nickldimartino.github.io/Battleship-Game/
 
 # Next Steps
 
-- Find and fix possible bugs and edge cases.
-- Refactor code.
+- Enhance the computer AI to make more knowledgable guesses
+- Find and fix possible bugs
+- Refactor code
