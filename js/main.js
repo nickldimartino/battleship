@@ -58,7 +58,7 @@ const NUM_COLUMN_MAX = 10;              // max number of columns
 const NUM_ROW_MAX = 10;                 // max number of rows
 const MS_PER_SECOND = 1000;             // number of milliseconds in a second
 const TOTAL_HITS_TO_WIN = 17;           // sum of the amount of hits needed for all boats
-const TOTAL_NUM_BOATS = 5;              // total number of boats a player needs  
+const TOTAL_NUM_BOATS = 1;              // total number of boats a player needs  
 const INIT_BOARD_TIME = 2000;           // initial time to switch board (ms)
 
 
@@ -76,6 +76,9 @@ let cpuNumBoats;                        // number of boats computer player has o
 let cpuGuesses;                         // array of guess the computer player has taken
 let computerPlayer;                     // flag to set a computer player
 let cpuHitCount;                        // number of hits Player 1 needs against the computer player
+let lastComputerGuess;                  // the computer player's last guess
+let lastComputerHit;                    // the computer player's last hit
+let narrowComputerSearchArea;           // flag to determine if the computer is search squares near a boat
 let moreLogInfo;                        // more info to append to the game log if needed
 let lastPlacedBoard;                    // holds the last clicked board
 let lastPlacedBoatSquareCol;            // holds the last clicked board column
@@ -236,6 +239,9 @@ function init() {
     player2NumBoats = 0;                              // player2 starts with 0 boats
     cpuNumBoats = 0;                                  // computer player starts with 0 boats
     cpuGuesses = [];                                  // computer player hasn't taken any guesses 
+    lastComputerGuess = -1;                           // the computer player doesn't have a previous hit (can't be equal to lastComputerHit on start so -1)
+    lastComputerHit = 0;                              // the computer player doesn't have a previous hit
+    narrowComputerSearchArea = false;                 // the computer has not found a boat
     computerPlayer = false;                           // game starts off using teo players
     cpuHitCount = 0;                                  // number of hits needed for Player 1 against the computer player starts at 0 
     gameStart = false;                                // game has not started
@@ -488,6 +494,11 @@ function checkSquare(boardId, board, col, row) {
         moreLogInfo = `You've already guessed that square! Take a different shot.`;
     } else if (square === SQUARE_VALUE.EMPTY && oppSquare === SQUARE_VALUE.BOAT) {
         board[col][row] = SQUARE_VALUE.HIT;
+
+        if (oppBoard === player1BoatBoard) {
+            lastComputerHit = lastComputerGuess;
+            narrowComputerSearchArea = true;
+        } 
 
         // play audio on each turn unless the Computer player is playing then only play audio for Player 1
         if (playAudio && !computerPlayer) {
@@ -795,9 +806,37 @@ function placeComputerBoat(col, row, boatLength, direction) {
 
 // Generate a random guess for the Computer player
 function generateComputerGuess() {
-    let col = Math.floor(Math.random() * NUM_COLUMN_MAX);   // random column number
-    let row = Math.floor(Math.random() * NUM_ROW_MAX);      // random row number 
-    let guess = col + row;                                  // combine the columna and row into a string
+    let guess;
+    let col;
+    let row;
+    // if (lastComputerGuess == lastComputerHit && narrowComputerSearchArea) {
+    //     lastComputerHit.toString().split("");
+    //     let lastRow = parseInt(lastComputerHit[0]);
+    //     let lastCol = parseInt(lastComputerHit[1]);
+    //     let surrouningSquares = [`${lastRow-1}${lastCol-1}`,    // top-right square
+    //                              `${lastRow-1}${lastCol}`,      // top-middle square
+    //                              `${lastRow-1}${lastCol+1}`,    // top-left square
+    //                              `${lastRow}${lastCol-1}`,      // middle-right square
+    //                              `${lastRow}${lastCol+1}`,      // middle-left square
+    //                              `${lastRow+1}${lastCol-1}`,    // bottom-right square
+    //                              `${lastRow+1}${lastCol}`,      // bottom-middle square
+    //                              `${lastRow+1}${lastCol+1}`,];  // bottom-left square
+    //     guess = surrouningSquares[Math.floor(Math.random() * 8)];
+
+    //     col = guess[1];
+    //     row = guess[1];
+    //     console.log(row, col)
+    // } else {
+    //     col = Math.floor(Math.random() * NUM_COLUMN_MAX);   // random column number
+    //     row = Math.floor(Math.random() * NUM_ROW_MAX);      // random row number 
+    //     guess = `${col}${row}`;                             // combine the columna and row into a string
+    // }
+
+    col = Math.floor(Math.random() * NUM_COLUMN_MAX);   // random column number
+    row = Math.floor(Math.random() * NUM_ROW_MAX);      // random row number 
+    guess = `${col}${row}`;                             // combine the columna and row into a string
+
+    lastComputerGuess = guess;
 
     // keep track of the guess the computer has made so far
     if (!cpuGuesses.includes(guess)) {

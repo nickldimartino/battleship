@@ -3,8 +3,8 @@ This is the game of Battleship! It functions the same way as the traditional gam
 
 # Screenshot
 
-<img src="https://media.licdn.com/dms/image/D4E2DAQENXQlg6mX8tA/profile-treasury-image-shrink_160_160/0/1709509785352?e=1710115200&v=beta&t=rnHZJ9XbnqUNlc9ryTUWPACoBYnytJsUYgy7p1v0fOE">
-<img src="https://media.licdn.com/dms/image/D4E2DAQEv8Cth5Kh-yg/profile-treasury-image-shrink_160_160/0/1709509915534?e=1710115200&v=beta&t=TShWmSwiBh9DSFYt_tgBncobti9O2N490PZI5SldDmo">
+<img src="./imgs/primary-theme.png">
+<img src="./imgs/classic-theme.png">
 
 # Technologies Used
 
