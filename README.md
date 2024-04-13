@@ -2,6 +2,15 @@
 
 #### <h3 align="center"><a href="https://nickldimartino.github.io/Battleship-Game/">Play on GitHub Pages!</a></h3>
 
+<div align="center">
+ <a href="https://www.linkedin.com/in/nicholas-dimartino/" target="_blank">
+      <img src="https://img.shields.io/badge/-linkedin.com/in/ndimartino-blue?style=flat&logo=Linkedin&logoColor=white">
+ </a> 
+ <a href="mailto:nick.l.dimartino@gmail.com" target="_blank">
+    <img src="https://img.shields.io/badge/-nick.l.dimartino@gmail.com-c14438?style=flat&logo=Gmail&logoColor=white">
+ </a>
+</div>
+
 ## 📝Description
 This is the game of Battleship! It functions the same way as the traditional game.  First, choose if you'd like to play against the computer. Each player(s) must choose the layout of their fleet of five boats: Aircraft Carrier, Battleship, Destroyer, Submarine and Patrol Boat.  Once each player(s) has chosen their layout, the game begins!  Players alternate guesses to find their opponet's boats.  The first player to sink all five of their opponet's ships wins!
 
