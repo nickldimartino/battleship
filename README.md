@@ -4,14 +4,14 @@
 
 <div align="center">
  <a href="https://www.linkedin.com/in/nicholas-dimartino/" target="_blank">
-      <img src="https://img.shields.io/badge/-linkedin.com/in/ndimartino-blue?style=flat&logo=Linkedin&logoColor=white">
+      <img src="https://img.shields.io/badge/-linkedin.com/in/nicholasdimartino-blue?style=flat&logo=Linkedin&logoColor=white">
  </a> 
  <a href="mailto:nick.l.dimartino@gmail.com" target="_blank">
     <img src="https://img.shields.io/badge/-nick.l.dimartino@gmail.com-c14438?style=flat&logo=Gmail&logoColor=white">
  </a>
 </div>
 
-## 📝Description
+## 📝 Description
 This is the game of Battleship! It functions the same way as the traditional game.  First, choose if you'd like to play against the computer. Each player(s) must choose the layout of their fleet of five boats: Aircraft Carrier, Battleship, Destroyer, Submarine and Patrol Boat.  Once each player(s) has chosen their layout, the game begins!  Players alternate guesses to find their opponet's boats.  The first player to sink all five of their opponet's ships wins!
 
 ## 🖼️ Screenshots
@@ -26,7 +26,7 @@ This is the game of Battleship! It functions the same way as the traditional gam
  
 </details>
 
-# Technologies Used
+## 💻 Technologies Used
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
@@ -43,28 +43,31 @@ This is the game of Battleship! It functions the same way as the traditional gam
 
 <details>
 <summary>How to Play the Game</summary>
+
 1. Game is set for two players. Click the "Computer Player" button if you wish to play against to the computer.
  
 2. Place your boats using the rules in the top-left of the screen.
 
 3. Take turns guessing the other player's ships.  The first person to hit all other their opponent's boats (17 squares) wins!  Select "New Game" to play again.
 
-5. The theme of the game, audio, and board switch delay can be modified.
+4. The theme of the game, audio, and board switch delay can be modified.
 </details>
 
 ### 🔗 Links
 
 <details>
 <summary>Trello Board</summary>
+
 <a href="https://trello.com/b/yS9rAAh5/sebr-02-12-24/">https://trello.com/b/yS9rAAh5/sebr-02-12-24</a>
 </details>
 
 <details>
 <summary>GitHub Pages</summary>
+
 <a href="https://nickldimartino.github.io/Battleship-Game/">https://nickldimartino.github.io/Battleship-Game/</a>
 </details>
 
-# Next Steps
+## ⏭️ Next Steps
 
 - [ ] Enhance the computer AI to make more knowledgable guesses
 - [ ] Find and fix possible bugs
